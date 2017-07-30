@@ -2,18 +2,18 @@
 import Home from '../components/Home';
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux';
-import * as UserActions from '../actions/user';
-import * as LoginActions from '../actions/login';
+import * as BoardsActions from '../actions/boards';
+import * as ListActions from '../actions/list';
 
 function mapStateToProps(state) {
   return {
-    user: state.user,
-    loggedIn: state.login,
+    boards: state.boards,
+    lists: state.list
   }
 }
 
 function mapDispatchtoProps(dispatch) {
-  return bindActionCreators(Object.assign({}, UserActions, LoginActions), dispatch);
+  return bindActionCreators(Object.assign({}, BoardsActions, ListActions), dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchtoProps)(Home);

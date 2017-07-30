@@ -3,15 +3,15 @@ import { LOAD_BOARDS_SUCCESS,
         ADD_TRELLO_LIST_SUCCESS
         } from '../actions/actionTypes';
 
-export type userStateType = {
-  +user: Array<mixed>,
+export type boardsStateType = {
+  +boards: Array<mixed>,
 }
 
 type actionType = {
   +type: string
 }
 
-export default function user(state: Array<mixed> = [], action: actionType) {
+export default function boards(state: Array<mixed> = [], action: actionType) {
   switch (action.type) {
     case LOAD_BOARDS_SUCCESS:
       return action.boards; 

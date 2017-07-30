@@ -9,7 +9,8 @@ class Db {
       db
         .get('boards')
         .push({boardId: details.boardId, trelloLists: []})
-        .write();
+        .write()
+        .then(() => {details.newBoard = true});
     }
 
     return new Promise(function(resolve, reject) {
@@ -20,10 +21,9 @@ class Db {
             .get('boards')
             .find({boardId: details.boardId})
             .get('trelloLists') 
-
             .push({name: list.name, trelloId: list.id})
             .write()
-            .then(() => {resolve(list.id)});
+            .then(() => {resolve({id: list.id, newBoard: details.newBoard})});
         } else {
           reject('This list is already added');
         }
@@ -41,8 +41,17 @@ class Db {
       .get('trelloLists')
       .remove({trelloId: id})
       .write()
-      .then(() => resolve('Success'))
-      .catch(() => reject('Problem deleting list'));
+      .then(() =>{
+        if(_.isEmpty(db.get('boards').find({boardId: boardId}).get('trelloLists').value())) {
+          db
+          .get('boards')
+          .remove({boardId: boardId})
+          .write()
+          .then(() => resolve('removedEmptyBoard'));
+        } else {
+          return resolve('Success');
+        }
+      }).catch(() => reject('Problem deleting list'));
     });
   }
 
@@ -53,46 +62,6 @@ class Db {
     });
   }
 
-  // fetchLists() {
-  //   return new Promise((resolve, reject) => {
-  //     db
-  //       .get('boards')
-  //       .unset('boards.trelloLists')
-  //       .write()
-  //       .then(err => {
-  //         resolve('Success');
-  //       });
-  //   }); 
-  // }
-
-  // fetchTrelloList(boardId, name) {
-  //   return new Promise((resolve, reject) => {
-  //     resolve(db
-  //       .get('boards')
-  //       .find({boardId: boardId})
-  //       .get('trelloLists')
-  //       .find({name: name})
-  //       .value());
-  //   });
-  // }
-
-  // fetchListId(name, boardId) {
-  //   return new Promise(function(resolve, reject) {
-  //     let id = db
-  //       .get('boards')
-  //       .find({boardId: boardId})
-  //       .get('trelloLists')
-  //       .find({name: name})
-  //       .get('trelloId')
-  //       .value();
-  //     console.log(id);
-  //     if(id) {
-  //       resolve(id);
-  //     } else {
-  //      reject(id)
-  //     }
-  //   });
-  // }
 }
 
 module.exports = new Db();

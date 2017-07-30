@@ -6,24 +6,33 @@ import styles from './BoardList.css';
 class BoardList extends Component {
   constructor(props) {
     super(props);
-    console.log(props);
     this.state = {
-      boards: [...props.user]
+      boards: [...this.props.boards],
+      lists: Object.assign({}, this.props.lists)
     }
+
+    this.removeList = this.removeList.bind(this);
   }
 
-  // props: {
-  //  lists: {
-  //     name: string,
-  //     labels: Array<any>,
-  //     id: string,
-  //     checklists: Array
-  //   }
-  // }
+  props: {
+    removeTrelloList: () => void,
+    mapCards: () => void,
+    lists: Object,
+    boards: Array<mixed>
+  }
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.user !== nextProps.user) {
-      this.setState({user: nextProps.user});
+    if (this.props.boards !== nextProps.boards) {
+      this.setState({boards: nextProps.boards});
+      let listArray = [];
+      nextProps.boards.map(board => {
+        listArray = [
+          ...listArray, 
+          ...board.trelloLists.map(trelloList => 
+            trelloList.trelloId)
+        ]
+      });
+      this.props.mapCards(listArray); 
     }
   }
 
@@ -33,14 +42,6 @@ class BoardList extends Component {
     this.props.removeTrelloList(list[0], list[1]);
   }
 
-  // {
-  //   let listArray = [];
-  //   this.user.map(board => {
-  //     listArray = [...listArray, ...board.trelloLists.map(trelloList => trelloList.trelloId)]
-  //   });
-  //   this.user.mapCards(listArray); 
-  // }
-
   render() { 
     return (
       <div>
@@ -48,20 +49,18 @@ class BoardList extends Component {
           <ul className={styles.boardList} key={board.boardId}>
             <h3>{board.boardId}</h3>
             <TrackedLists
-            boardId={this.state.boards.boardId}
-            cards={cards}
-            toRemove={this.removeList}
-            lists={this.state.boards.trelloLists} />
+              boardId={board.boardId}
+              lists={board.trelloLists}
+              cards={this.props.lists}
+              toRemove={this.removeList}
+              exportList={this.props.exportList}
+              selectedStory={this.props.selectedStory}
+              selectActiveStory={this.props.selectActiveStory} />
           </ul>
         )}
       </div>
     );
   }
 }
-
-// BoardList.propTypes = {
-//   boards: PropTypes.array.isRequired,
-//   toRemove: PropTypes.func.isRequired
-// }
 
 export default BoardList;

@@ -6,7 +6,7 @@ const db = require('./Db');
 
 class Trello {
   constructor() {
-  }
+   }
 
   sendRequest(details, params, next) {
     return new Promise(function(resolve, reject) {

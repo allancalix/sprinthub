@@ -1,4 +1,4 @@
-import  type { userStateType } from '../reducers/user';
+import  type { listsStateType } from '../reducers/list';
 import * as types from './actionTypes';
 import Sprint from '../lib/Sprint';
 import { find, flow, remove, get } from 'lodash/fp';

@@ -14,4 +14,4 @@ function mapDispatchtoProps(dispatch) {
   return bindActionCreators(Object.assign({}, ListActions), dispatch);
 }
 
-export default connect(mapStateToProps, mapDispatchtoProps)(Home);
+export default connect(mapStateToProps, mapDispatchtoProps)(BoardList);

@@ -1,15 +1,19 @@
 // @flow
 import React, { PropTypes } from 'react';
 import TrackedLists from './TrackedLists';
-import styles from './BoardList.css';
+import styles from './CardList.css';
 
-const CardList = ({id, cards}) => {
+const CardList = ({id, cards, selectedStory, selectActiveStory}) => {
   return (
     <div>
-      {cards.map(board => 
-        <ul key={id}>
-          <h3>{cards.name}</h3>
-        </ul>
+      {cards[id].map(cardList =>
+        <li 
+          key={cardList.id}
+          id={`${id} ${cardList.id}`}
+          onClick={selectActiveStory}
+          className={selectedStory.id === cardList.id ? styles.active : styles.inactive}>
+            {cardList.name}
+        </li>
       )}
     </div>
   );

@@ -1,0 +1,7 @@
+.rightPanel {
+  display: inline-block;
+  width: 500px;
+  position: absolute;
+  margin-left: 75px;
+  background: rgba(0, 0, 0, .1);
+}

@@ -10,7 +10,7 @@
  *
  * @flow
  */
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain } from 'electron';
 import MenuBuilder from './menu';
 
 let mainWindow = null;
@@ -44,6 +44,12 @@ const installExtensions = async () => {
 /**
  * Add event listeners...
  */
+ipcMain.on('open-dialog', (event, args) => {
+  dialog.showOpenDialog({properties: ['openDirectory', 'createDirectory']}, location => {
+    let directory = (location) ? location[0] : false;
+    event.sender.send('selected-directory', {dir: directory, data: args})
+  });
+});
 
 app.on('window-all-closed', () => {
   // Respect the OSX convention of having the application in memory even
