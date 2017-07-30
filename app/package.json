@@ -14,5 +14,9 @@
   },
   "license": "MIT",
   "dependencies": {
+    "lodash": "^4.17.4",
+    "lowdb": "^0.16.2",
+    "query-string": "^5.0.0",
+    "request": "^2.81.0"
   }
 }

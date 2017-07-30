@@ -1,0 +1,35 @@
+{
+  "user": "not test",
+  "boards": [
+    {
+      "boardId": "CaTOREX3",
+      "trelloLists": [
+        {
+          "name": "Sprint 4",
+          "trelloId": "5915eb1e714812198d1d33be"
+        },
+        {
+          "name": "RAWR",
+          "trelloId": "597849c024b47d35e58474ce"
+        },
+        {
+          "name": "What",
+          "trelloId": "597b0ed6ef5904182386667b"
+        }
+      ]
+    },
+    {
+      "boardId": "J8XL7JHv",
+      "trelloLists": [
+        {
+          "name": "Allan",
+          "trelloId": "59402de2ff825ccda6f56645"
+        },
+        {
+          "name": "QA Backlog",
+          "trelloId": "5935d81ad5c9dc7bd423983e"
+        }
+      ]
+    }
+  ]
+}
