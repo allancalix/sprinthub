@@ -1,35 +1,34 @@
 // @flow
-import React, { PropTypes } from 'react';
+import React from 'react';
 import TextInput from './common/TextInput';
 
+type Props = {
+  onChange: () => void,
+  onSubmit: () => void,
+  boards: Object,
+  errors: Object
+}
 
-const AddListForm = ({boards, onChange, onSubmit, errors}) => {
+const AddListForm = ({boards, onChange, onSubmit, errors}: Props) => {
   return (
     <form onSubmit={onSubmit}>
       <TextInput
         name='boardId'
         label='Board ID: '
         placeholder='Board ID'
-        value={boards.toAdd}
+        value={boards.boardId}
         onChange={onChange}
-        error={errors.boardIdInput} />
+        error={errors.addList} />
       <TextInput
         name='listName'
         label='List Name: '
         placeholder='EX: Sprint 3'
-        value={boards.list}
+        value={boards.listName}
         onChange={onChange}
-        error={errors.listNameInput} />
+        error={errors.addList} />
       <input type="submit" name="Submit"/>
     </form>
   );
-}
-
-AddListForm.propTypes = {
-  boards: PropTypes.object.isRequired,
-  onChange: PropTypes.func.isRequired,
-  onSubmit: PropTypes.func.isRequired,
-  errors: PropTypes.object.isRequired
 }
 
 export default AddListForm;

@@ -1,3 +1,4 @@
+// @flow
 import  type { listsStateType } from '../reducers/list';
 import * as types from './actionTypes';
 import Sprint from '../lib/Sprint';

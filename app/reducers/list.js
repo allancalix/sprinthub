@@ -1,3 +1,4 @@
+// @flow
 import { MAP_CARDS_SUCCESS
         } from '../actions/actionTypes';
 

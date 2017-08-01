@@ -1,8 +1,15 @@
 // @flow
-import React, { PropTypes } from 'react';
+import React from 'react';
 import CardList from './CardList';
 
-const TrackedLists = ({boardId, lists, cards, toRemove, selectedStory, selectActiveStory, exportList}) => {
+type Props = {
+  toRemove: () => void,
+  boardId: string,
+  lists: Array,
+  cards: Object
+}
+
+const TrackedLists = ({boardId, lists, cards, toRemove, selectedStory, selectActiveStory, exportList}: Props) => {
   return (
     <div>
       {lists.map(list => 
@@ -21,13 +28,6 @@ const TrackedLists = ({boardId, lists, cards, toRemove, selectedStory, selectAct
       )}
     </div>
   );
-}
-
-TrackedLists.propTypes = {
-  boardId: PropTypes.string.isRequired,
-  lists: PropTypes.array.isRequired,
-  cards: PropTypes.object.isRequired,
-  toRemove: PropTypes.func.isRequired
 }
 
 export default TrackedLists;

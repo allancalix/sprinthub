@@ -6,7 +6,21 @@ const db = require('./Db');
 
 class Trello {
   constructor() {
+
    }
+
+  login() {
+    const params = {
+      scope: 'read,write',
+      expiration: 'never',
+      name: 'sprinthub',
+      key: this.key,
+      callback_method: 'postMessage'
+    }
+
+    const paramString = `/1/authorize?${qs.stringify(params)}`
+    return `https://trello.com/1/authorize?scope=read,write&expiration=never&name=sprinthub&key=&callback_method=postMessage`;
+  }
 
   sendRequest(details, params, next) {
     return new Promise(function(resolve, reject) {
@@ -17,12 +31,12 @@ class Trello {
             reject(body);
             return;
           } else {
-          data = JSON.parse(body);
-          let promise = next(data, details);
-          promise
-            .then(success => {
-              resolve(success)})
-            .catch(() => {reject(promise)});
+            data = JSON.parse(body);
+            let promise = next(data, details);
+            promise
+              .then(success => {
+                resolve(success)})
+              .catch(() => {reject(promise)});
           }
         }
       );
@@ -53,6 +67,25 @@ class Trello {
     });
   }
 
+  queryCards(listArray) {
+    const batchUrl = listArray.map(listId => `/lists/${listId}/cards/open?fields=name%26fields=id%26fields=labels%26checklists=all%26`);
+    const paramString = `/1/batch/?urls=${batchUrl}&key=${this.key}&token=${this.token}`
+    let promise = this.sendRequest({}, paramString, data => {
+      return new Promise((resolve, reject) => {
+        resolve(data);
+        });
+    });
+
+    return new Promise(function(resolve, reject) {
+      promise.then(data => {
+        resolve(data);
+      }).catch(e => {console.log(e)});
+    });
+  }
+}
+
+module.exports = new Trello();
+
   // queryCards(listId, boardId, name) {
   //   const params = {
   //     cards: 'open',
@@ -77,22 +110,3 @@ class Trello {
   //     }).catch(e => {console.log(e)});
   //   });
   // }
-
-  queryCards(listArray) {
-    const batchUrl = listArray.map(listId => `/lists/${listId}/cards/open?fields=name%26fields=id%26fields=labels%26checklists=all%26`);
-    const paramString = `/1/batch/?urls=${batchUrl}&key=${this.key}&token=${this.token}`
-    let promise = this.sendRequest({}, paramString, data => {
-      return new Promise((resolve, reject) => {
-        resolve(data);
-        });
-    });
-
-    return new Promise(function(resolve, reject) {
-      promise.then(data => {
-        resolve(data);
-      }).catch(e => {console.log(e)});
-    });
-  }
-}
-
-module.exports = new Trello();

@@ -1,3 +1,4 @@
+// @flow
 import  type { boardsStateType } from '../reducers/boards';
 import * as types from './actionTypes';
 import Sprint from '../lib/Sprint';
@@ -20,16 +21,15 @@ export function loadBoards() {
     return Sprint.returnTrackedBoards().then(boards => {
       dispatch(loadBoardsSuccess(boards));
       }).catch(error => {
-      console.log(error);
+        // console.log(error);
       });
   }
 }
 
 export function addTrelloList(boardId, listName) {
   return (dispatch: (action: actionType) => void, getState) => {
-    const state = getState().boards;
-    return Sprint.trackNewList(boardId, listName).then(success => {
-      let newState = state.map(board => {
+    return Sprint.trackNewList(boardId, listName).then(success => {  
+      let newState = getState().boards.map(board => {
         board.trelloLists = board.boardId === boardId ? 
           [...board.trelloLists, {name: listName, trelloId: success.id}] : board.trelloLists
         return board;
@@ -37,7 +37,7 @@ export function addTrelloList(boardId, listName) {
       if(success.newBoard) { dispatch(loadBoards()) };
       dispatch(addTrelloListSuccess(newState))
     }).catch(error => {
-      console.log(error);
+      // console.log(error);
     });
   }
 }

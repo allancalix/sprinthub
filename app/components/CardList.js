@@ -1,9 +1,17 @@
 // @flow
-import React, { PropTypes } from 'react';
+import React from 'react';
 import TrackedLists from './TrackedLists';
 import styles from './CardList.css';
 
-const CardList = ({id, cards, selectedStory, selectActiveStory}) => {
+type Props = {
+  selectActiveStory: () => void,
+  id: string,
+  cards: Object,
+  selectedStory: Object
+}
+
+const CardList = ({id, cards, selectedStory, selectActiveStory}: Props) => {
+
   return (
     <div>
       {cards[id].map(cardList =>
@@ -17,11 +25,6 @@ const CardList = ({id, cards, selectedStory, selectActiveStory}) => {
       )}
     </div>
   );
-}
-
-CardList.propTypes = {
-  id: PropTypes.string.isRequired,
-  cards: PropTypes.object.isRequired
 }
 
 export default CardList;

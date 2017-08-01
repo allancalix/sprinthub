@@ -1,9 +1,10 @@
+// @flow
 type actionType = {
   +type: string
 }
 
 // login.js
-export const LOGIN = 'LOGIN';
+export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
 
 // user.js
 export const LOAD_BOARDS_SUCCESS = 'LOAD_BOARDS_SUCCESS';

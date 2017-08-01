@@ -5,7 +5,7 @@ import styles from './Home.css';
 import AddListForm from './AddListModal';
 import BoardList from './BoardList';
 import CheckListPanel from './CheckListPanel';
-import {ipcRenderer} from 'electron';
+import { ipcRenderer } from 'electron';
 import { exportRawData } from '../lib/Sprint';
 
 ipcRenderer.on('selected-directory', (event, args) => {
@@ -14,26 +14,26 @@ ipcRenderer.on('selected-directory', (event, args) => {
   }
 });
 
-class Home extends Component {
+type Props = {
+  addTrelloList: () => void,
+  lists: Object,
+  boards: Array<mixed>
+}
+
+class Home extends Component<void, Props, void> {
   constructor(props) {
     super(props);
     this.state = {
       boards: this.props.boards, 
-      board: {},
+      board: {boardId: '', listName: ''},
       selectedStory: {},
-      errors: {}
+      errors: {addList: ''}
     };
 
     this.exportList = this.exportList.bind(this);
     this.updateBoardsState = this.updateBoardsState.bind(this);
     this.trackList = this.trackList.bind(this);
     this.selectActiveStory = this.selectActiveStory.bind(this);
-  }
-
-  props: {
-    addTrelloList: () => void,
-    lists: Object,
-    boards: Array<mixed>
   }
 
   componentWillReceiveProps(nextProps) {
@@ -73,6 +73,7 @@ class Home extends Component {
       <div>
         <div className={styles.container} data-tid="container">
           <h2>Sprint Hub</h2>
+          <Link to="/login">To Login</Link>
           <BoardList
             boards={this.props.boards}
             lists={this.props.lists}

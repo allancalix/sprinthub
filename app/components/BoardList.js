@@ -3,7 +3,14 @@ import React, { Component } from 'react';
 import TrackedLists from './TrackedLists';
 import styles from './BoardList.css';
 
-class BoardList extends Component {
+type Props = {
+    removeTrelloList: () => void,
+    mapCards: () => void,
+    lists: Object,
+    boards: Array<mixed>
+  }
+
+class BoardList extends Component<void, Props, void>{
   constructor(props) {
     super(props);
     this.state = {
@@ -14,15 +21,8 @@ class BoardList extends Component {
     this.removeList = this.removeList.bind(this);
   }
 
-  props: {
-    removeTrelloList: () => void,
-    mapCards: () => void,
-    lists: Object,
-    boards: Array<mixed>
-  }
-
   componentWillReceiveProps(nextProps) {
-    if (this.props.boards !== nextProps.boards) {
+    if(this.props.boards !== nextProps.boards) {
       this.setState({boards: nextProps.boards});
       let listArray = [];
       nextProps.boards.map(board => {

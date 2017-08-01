@@ -1,6 +1,16 @@
-import React, { PropTypes } from 'react';
+// @flow
+import React from 'react';
 
-const TextInput = ({name, label, onChange, placeholder, value, error}) => {
+type Props = {
+  name: string,
+  label: string,
+  onChange: () => void,
+  placeholder: string,
+  value: string,
+  error: string
+}
+
+const TextInput = ({name, label, onChange, placeholder, value, error}: Props) => {
   return (
     <div>
       <label htmlFor={name}>{label}</label>
@@ -13,15 +23,6 @@ const TextInput = ({name, label, onChange, placeholder, value, error}) => {
       {error && <div className="error">{error}</div>}
     </div>
   );
-}
-
-TextInput.propTypes = {
-  name: PropTypes.string.isRequired,
-  label: PropTypes.string.isRequired,
-  onChange: PropTypes.func.isRequired,
-  placeholder: PropTypes.string,
-  value: PropTypes.string,
-  error: PropTypes.string
 }
 
 export default TextInput;

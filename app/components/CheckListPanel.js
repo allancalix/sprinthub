@@ -1,8 +1,12 @@
 // @flow
-import React, { PropTypes } from 'react';
+import React from 'react';
 import styles from './CheckListPanel.css';
 
-const CheckListPanel = ({ checklists }) => {
+type Props = {
+  checklists: Object
+}
+
+const CheckListPanel = ({ checklists }: Props) => {
   return (
     <div className={styles.rightPanel}>
       <h1>{checklists.name}</h1>
@@ -20,10 +24,6 @@ const CheckListPanel = ({ checklists }) => {
       </ul>
     </div>
   );
-}
-
-CheckListPanel.propTypes = {
-  checklists: PropTypes.object.isRequired,
 }
 
 export default CheckListPanel;

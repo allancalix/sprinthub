@@ -1,3 +1,4 @@
+// @flow
 import { LOGIN } from '../actions/actionTypes';
 
 export type loginStateType = {

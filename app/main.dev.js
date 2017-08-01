@@ -12,6 +12,7 @@
  */
 import { app, BrowserWindow, dialog, ipcMain } from 'electron';
 import MenuBuilder from './menu';
+import DataURI from 'datauri';
 
 let mainWindow = null;
 
@@ -48,6 +49,35 @@ ipcMain.on('open-dialog', (event, args) => {
   dialog.showOpenDialog({properties: ['openDirectory', 'createDirectory']}, location => {
     let directory = (location) ? location[0] : false;
     event.sender.send('selected-directory', {dir: directory, data: args})
+  });
+});
+
+ipcMain.on('trello-login', (event, args) => {
+  let trelloWindow = new BrowserWindow({
+    show: true,
+    width: 1000,
+    height: 800,
+    nodeIntegration: false,
+    allowRunningInsecureContent: true,
+    webPreferences: {
+      webSecurity: false,
+      contextIsolation: true
+    }
+  });
+
+  trelloWindow.loadURL(args);
+
+  trelloWindow.webContents.on('will-navigate', (event, url) => {
+    trelloWindow.loadURL(url);
+  });
+
+  // trelloWindow.webContents.on('did-get-redirect-request', function (event, oldUrl, newUrl) {
+  //   console.log(newUrl);
+  //   trelloWindow.loadURL(newUrl);
+  // });
+
+  trelloWindow.on('closed', () => {
+    trelloWindow = null;
   });
 });
 
