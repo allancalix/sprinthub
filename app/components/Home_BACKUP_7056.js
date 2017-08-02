@@ -18,7 +18,7 @@ ipcRenderer.on('selected-directory', (event, args) => {
 
 type Props = {
   addTrelloList: () => void,
-  lists: Object,me
+  lists: Object,
   boards: Array<mixed>
 }
 
@@ -91,12 +91,16 @@ class Home extends Component<void, Props, void> {
     return (
       <div>
         <div className={styles.container} data-tid="container">
-          <h2bonClick={this.test}>Sprint Hub</h2>
+<<<<<<< HEAD
+          <h2>Sprint Hub</h2>
           <nav>
             <Link to="/login">To Login</Link>
-            <button onClick={this.toggleAddList}>Add List</button>
+              <button onClick={this.toggleAddList}>Add List</button>
           </nav>
+=======
+          <h2 onClick={this.test}>Sprint Hub</h2>
           <Link to="/login">To Login</Link>
+>>>>>>> origin/master
           <BoardList
             boards={this.props.boards}
             lists={this.props.lists}

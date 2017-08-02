@@ -1,4 +1,3 @@
-
 // @flow
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
@@ -8,7 +7,6 @@ import BoardList from './BoardList';
 import CheckListPanel from './CheckListPanel';
 import { ipcRenderer } from 'electron';
 import { exportRawData } from '../lib/Sprint';
-import * as Jira from '../lib/Jira';
 
 ipcRenderer.on('selected-directory', (event, args) => {
   if (args.dir) {
@@ -18,7 +16,7 @@ ipcRenderer.on('selected-directory', (event, args) => {
 
 type Props = {
   addTrelloList: () => void,
-  lists: Object,me
+  lists: Object,
   boards: Array<mixed>
 }
 
@@ -29,31 +27,19 @@ class Home extends Component<void, Props, void> {
       boards: this.props.boards, 
       board: {boardId: '', listName: ''},
       selectedStory: {},
-      errors: {addList: ''},
-      showAddList: false
+      errors: {addList: ''}
     };
 
-    this.test = this.test.bind(this);
     this.exportList = this.exportList.bind(this);
-    this.toggleAddList = this.toggleAddList.bind(this);
     this.updateBoardsState = this.updateBoardsState.bind(this);
     this.trackList = this.trackList.bind(this);
     this.selectActiveStory = this.selectActiveStory.bind(this);
-  }
-
-  componentDidMount() {
-    this.props.loadBoards();
   }
 
   componentWillReceiveProps(nextProps) {
     if (this.props.boards !== nextProps.boards) {
       this.setState({boards: nextProps.boards});
     }
-  }
-
-  test(event) {
-    event.preventDefault();
-    Jira.createTask(this.props.boards, this.props.lists);
   }
 
   updateBoardsState(event) {
@@ -72,11 +58,6 @@ class Home extends Component<void, Props, void> {
     });
   }
 
-  toggleAddList(event) {
-    event.preventDefault();
-    this.setState({showAddList: !this.state.showAddList})
-  }
-
   exportList(event) {
     const list = this.props.lists[event.target.value];
     ipcRenderer.send('open-dialog', list);
@@ -91,11 +72,7 @@ class Home extends Component<void, Props, void> {
     return (
       <div>
         <div className={styles.container} data-tid="container">
-          <h2bonClick={this.test}>Sprint Hub</h2>
-          <nav>
-            <Link to="/login">To Login</Link>
-            <button onClick={this.toggleAddList}>Add List</button>
-          </nav>
+          <h2>Sprint Hub</h2>
           <Link to="/login">To Login</Link>
           <BoardList
             boards={this.props.boards}
@@ -105,14 +82,12 @@ class Home extends Component<void, Props, void> {
             selectedStory={this.state.selectedStory}
             selectActiveStory={this.selectActiveStory}
             exportList={this.exportList} />
-          { this.state.showAddList &&
-            <AddListForm
-              boards={this.state.board}
-              togglePop={this.toggleAddList}
-              onChange={this.updateBoardsState}
-              onSubmit={this.trackList}
-              errors={this.state.errors} />
-          }
+          <AddListForm
+            boards={this.state.board}
+            cards ={this.props.lists}
+            onChange={this.updateBoardsState}
+            onSubmit={this.trackList}
+            errors={this.state.errors} />
         </div>
         {Object.keys(this.state.selectedStory).length !== 0 && 
             <CheckListPanel checklists={this.state.selectedStory} />

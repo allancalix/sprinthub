@@ -1,29 +1,36 @@
 // @flow
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import TextInput from './common/TextInput';
-import Trello from '../lib/Trello';
 import { ipcRenderer } from 'electron';
+import { authenticateTrello } from '../lib/Sprint';
 
-class Login extends Component {
+const globalVar = () => {};
+
+ipcRenderer.on('return-token', (event, token) => {
+  globalVar.callback(token);
+});
+
+type Props = {
+  login: boolean
+}
+
+class Login extends Component<void, Props, void> {
   constructor(props) {
     super(props);
-    this.state = {
-      credentials: {
-        Username: '',
-        Password: ''
-      }
-    }
+  }
+  componentDidMount() {
+    this.props.loadStatus();
+  }
 
-    this.login = this.login.bind(this);
+  componentWillMount() {
+    globalVar.callback = data => {
+      this.props.setTrelloToken(data);
+    }
   }
 
   login(event) {
     event.preventDefault();
-    Trello.login(body => {
-      this.setState({swag: () => {__html: body}});
-    });
-    ipcRenderer.send('trello-login', Trello.login());
+    ipcRenderer.send('trello-login', authenticateTrello());
   }
 
   render() {
@@ -32,13 +39,12 @@ class Login extends Component {
         <h1>Login Page</h1>
         <Link to="/">To Home</Link>
         <br></br>
-        <button onClick={this.login}>Login to Trello</button>
+        {this.props.login ?  
+          <p>YOU ARE LOGGED IN</p> : <button onClick={this.login}>Login to Trello</button>
+        }
       </div>
     );
   }
 }
 
 export default Login;
-          // {this.state.swag !== undefined ? 
-          //   <webview dangerouslySetInnerHTML={this.state.swag()} /> : null
-          // }

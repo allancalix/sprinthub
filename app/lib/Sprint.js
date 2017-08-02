@@ -1,9 +1,23 @@
 'use strict';
-const Trello = require('./Trello');
+const trello = require('./Trello');
 const fs = require('fs');
 const db = require('./Db');
 
+const Trello = new trello();
+
 class Sprint {
+  isTrelloTokenSet() {
+    return db.isTrelloTokenSet();
+  }
+
+  activateTrello(token) {
+    return db.setTrelloToken(token);
+  }
+
+  authenticateTrello() {
+    return Trello.login();
+  }
+
   trackNewList(boardId, name) {
     const promise = Trello.queryLists(boardId, name);
     return new Promise((resolve, reject) => {

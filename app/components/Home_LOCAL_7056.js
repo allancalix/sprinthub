@@ -8,7 +8,6 @@ import BoardList from './BoardList';
 import CheckListPanel from './CheckListPanel';
 import { ipcRenderer } from 'electron';
 import { exportRawData } from '../lib/Sprint';
-import * as Jira from '../lib/Jira';
 
 ipcRenderer.on('selected-directory', (event, args) => {
   if (args.dir) {
@@ -18,7 +17,7 @@ ipcRenderer.on('selected-directory', (event, args) => {
 
 type Props = {
   addTrelloList: () => void,
-  lists: Object,me
+  lists: Object,
   boards: Array<mixed>
 }
 
@@ -33,7 +32,6 @@ class Home extends Component<void, Props, void> {
       showAddList: false
     };
 
-    this.test = this.test.bind(this);
     this.exportList = this.exportList.bind(this);
     this.toggleAddList = this.toggleAddList.bind(this);
     this.updateBoardsState = this.updateBoardsState.bind(this);
@@ -41,19 +39,10 @@ class Home extends Component<void, Props, void> {
     this.selectActiveStory = this.selectActiveStory.bind(this);
   }
 
-  componentDidMount() {
-    this.props.loadBoards();
-  }
-
   componentWillReceiveProps(nextProps) {
     if (this.props.boards !== nextProps.boards) {
       this.setState({boards: nextProps.boards});
     }
-  }
-
-  test(event) {
-    event.preventDefault();
-    Jira.createTask(this.props.boards, this.props.lists);
   }
 
   updateBoardsState(event) {
@@ -91,12 +80,11 @@ class Home extends Component<void, Props, void> {
     return (
       <div>
         <div className={styles.container} data-tid="container">
-          <h2bonClick={this.test}>Sprint Hub</h2>
+          <h2>Sprint Hub</h2>
           <nav>
             <Link to="/login">To Login</Link>
-            <button onClick={this.toggleAddList}>Add List</button>
+              <button onClick={this.toggleAddList}>Add List</button>
           </nav>
-          <Link to="/login">To Login</Link>
           <BoardList
             boards={this.props.boards}
             lists={this.props.lists}

@@ -12,7 +12,6 @@
  */
 import { app, BrowserWindow, dialog, ipcMain } from 'electron';
 import MenuBuilder from './menu';
-import DataURI from 'datauri';
 
 let mainWindow = null;
 
@@ -54,11 +53,10 @@ ipcMain.on('open-dialog', (event, args) => {
 
 ipcMain.on('trello-login', (event, args) => {
   let trelloWindow = new BrowserWindow({
-    show: true,
+    show: false,
     width: 1000,
     height: 800,
     nodeIntegration: false,
-    allowRunningInsecureContent: true,
     webPreferences: {
       webSecurity: false,
       contextIsolation: true
@@ -67,14 +65,27 @@ ipcMain.on('trello-login', (event, args) => {
 
   trelloWindow.loadURL(args);
 
+  const returnToken = token => {
+    event.sender.send('return-token', token);
+    trelloWindow.destroy();
+  }
+
   trelloWindow.webContents.on('will-navigate', (event, url) => {
-    trelloWindow.loadURL(url);
+    let checkUrl = url.split('#');
+    if (checkUrl[0] === 'https://localhost/app.html') {
+      returnToken(checkUrl[1].split('=')[1]);
+    } else {
+      trelloWindow.loadURL(url);
+    }
   });
 
-  // trelloWindow.webContents.on('did-get-redirect-request', function (event, oldUrl, newUrl) {
-  //   console.log(newUrl);
-  //   trelloWindow.loadURL(newUrl);
-  // });
+  trelloWindow.webContents.on('did-finish-load', () => {
+    if (!trelloWindow) {
+      throw new Error('"trelloWindow" is not defined');
+    }
+    trelloWindow.show();
+    trelloWindow.focus();
+  });
 
   trelloWindow.on('closed', () => {
     trelloWindow = null;
