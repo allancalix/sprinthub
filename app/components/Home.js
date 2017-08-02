@@ -1,3 +1,4 @@
+
 // @flow
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
@@ -27,10 +28,12 @@ class Home extends Component<void, Props, void> {
       boards: this.props.boards, 
       board: {boardId: '', listName: ''},
       selectedStory: {},
-      errors: {addList: ''}
+      errors: {addList: ''},
+      showAddList: false
     };
 
     this.exportList = this.exportList.bind(this);
+    this.toggleAddList = this.toggleAddList.bind(this);
     this.updateBoardsState = this.updateBoardsState.bind(this);
     this.trackList = this.trackList.bind(this);
     this.selectActiveStory = this.selectActiveStory.bind(this);
@@ -58,6 +61,11 @@ class Home extends Component<void, Props, void> {
     });
   }
 
+  toggleAddList(event) {
+    event.preventDefault();
+    this.setState({showAddList: !this.state.showAddList})
+  }
+
   exportList(event) {
     const list = this.props.lists[event.target.value];
     ipcRenderer.send('open-dialog', list);
@@ -73,7 +81,10 @@ class Home extends Component<void, Props, void> {
       <div>
         <div className={styles.container} data-tid="container">
           <h2>Sprint Hub</h2>
-          <Link to="/login">To Login</Link>
+          <nav>
+            <Link to="/login">To Login</Link>
+              <button onClick={this.toggleAddList}>Add List</button>
+          </nav>
           <BoardList
             boards={this.props.boards}
             lists={this.props.lists}
@@ -82,12 +93,14 @@ class Home extends Component<void, Props, void> {
             selectedStory={this.state.selectedStory}
             selectActiveStory={this.selectActiveStory}
             exportList={this.exportList} />
-          <AddListForm
-            boards={this.state.board}
-            cards ={this.props.lists}
-            onChange={this.updateBoardsState}
-            onSubmit={this.trackList}
-            errors={this.state.errors} />
+          { this.state.showAddList &&
+            <AddListForm
+              boards={this.state.board}
+              togglePop={this.toggleAddList}
+              onChange={this.updateBoardsState}
+              onSubmit={this.trackList}
+              errors={this.state.errors} />
+          }
         </div>
         {Object.keys(this.state.selectedStory).length !== 0 && 
             <CheckListPanel checklists={this.state.selectedStory} />

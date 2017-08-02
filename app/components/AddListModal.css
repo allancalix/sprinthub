@@ -1,0 +1,35 @@
+.modalMask {
+  position: absolute;
+  background-color: lightgrey;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.form {
+  position: relative;
+  top: 20%;
+  left: 30%;
+  height: 50%;
+  width: 40%;
+  background-color: white;
+}
+
+.form input {
+  width: 80%;
+  padding: 10px;
+  font-size: 1.2em;
+  margin: 10px 0px 10px 0px;
+}
+
+.form input[type="submit"] {
+  width: 100px;
+  padding: 5px;
+}
+
+.form h3 {
+  color: black;
+  padding: 10px;
+  margin-bottom: 0px;
+}
