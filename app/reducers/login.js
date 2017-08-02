@@ -1,5 +1,8 @@
 // @flow
-import { LOGIN } from '../actions/actionTypes';
+import {
+  SET_STATUS,
+  SET_TRELLO_TOKEN_SUCCESS,
+  SET_TRELLO_TOKEN_FAILURE } from '../actions/actionTypes';
 
 export type loginStateType = {
   +loggedIn: boolean,
@@ -11,8 +14,12 @@ type actionType = {
 
 export default function login(state: boolean = false, action: actionType) {
   switch (action.type) {
-    case LOGIN:
-      return state = !state;
+    case SET_STATUS:
+      return action.loginStatus;
+    case SET_TRELLO_TOKEN_SUCCESS:
+      return true;
+    case SET_TRELLO_TOKEN_FAILURE:
+      return false;
     default:
       return state;
   }

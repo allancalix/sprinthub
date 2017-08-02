@@ -7,7 +7,6 @@ import './app.global.css';
 import { loadBoards } from './actions/boards';
 
 const store = configureStore({});
-store.dispatch(loadBoards());
 
 render(
   <AppContainer>

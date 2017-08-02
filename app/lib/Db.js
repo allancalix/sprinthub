@@ -62,6 +62,20 @@ class Db {
     });
   }
 
+  setTrelloToken(token) {
+    return new Promise((resolve, reject) => {
+      db
+      .get('user')
+      .set('trelloToken', token)
+      .write()
+      .then(() => resolve('Succes'))
+      .catch(err => reject(err));
+    });
+  }
+
+  isTrelloTokenSet() {
+    return db.get('user').get('trelloToken').value() ? true : false;
+  }
 }
 
 module.exports = new Db();

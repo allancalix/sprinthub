@@ -7,6 +7,7 @@ import BoardList from './BoardList';
 import CheckListPanel from './CheckListPanel';
 import { ipcRenderer } from 'electron';
 import { exportRawData } from '../lib/Sprint';
+import * as Jira from '../lib/Jira';
 
 ipcRenderer.on('selected-directory', (event, args) => {
   if (args.dir) {
@@ -30,16 +31,26 @@ class Home extends Component<void, Props, void> {
       errors: {addList: ''}
     };
 
+    this.test = this.test.bind(this);
     this.exportList = this.exportList.bind(this);
     this.updateBoardsState = this.updateBoardsState.bind(this);
     this.trackList = this.trackList.bind(this);
     this.selectActiveStory = this.selectActiveStory.bind(this);
   }
 
+  componentDidMount() {
+    this.props.loadBoards();
+  }
+
   componentWillReceiveProps(nextProps) {
     if (this.props.boards !== nextProps.boards) {
       this.setState({boards: nextProps.boards});
     }
+  }
+
+  test(event) {
+    event.preventDefault();
+    Jira.createTask(this.props.boards, this.props.lists);
   }
 
   updateBoardsState(event) {
@@ -72,7 +83,7 @@ class Home extends Component<void, Props, void> {
     return (
       <div>
         <div className={styles.container} data-tid="container">
-          <h2>Sprint Hub</h2>
+          <h2 onClick={this.test}>Sprint Hub</h2>
           <Link to="/login">To Login</Link>
           <BoardList
             boards={this.props.boards}

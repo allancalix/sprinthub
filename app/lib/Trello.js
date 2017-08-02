@@ -3,23 +3,23 @@ const request = require('request');
 const qs = require('query-string');
 const db = require('./Db');
 
-
 class Trello {
   constructor() {
-
+    //trellokey
+    //trellotoken
    }
 
   login() {
     const params = {
       scope: 'read,write',
       expiration: 'never',
-      name: 'sprinthub',
+      name: 'SprintHub',
       key: this.key,
-      callback_method: 'postMessage'
+      return_url: 'https://localhost/app.html'
     }
 
     const paramString = `/1/authorize?${qs.stringify(params)}`
-    return `https://trello.com/1/authorize?scope=read,write&expiration=never&name=sprinthub&key=&callback_method=postMessage`;
+    return `https://trello.com/${paramString}`
   }
 
   sendRequest(details, params, next) {
@@ -84,7 +84,7 @@ class Trello {
   }
 }
 
-module.exports = new Trello();
+module.exports = Trello;
 
   // queryCards(listId, boardId, name) {
   //   const params = {

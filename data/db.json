@@ -1,29 +1,14 @@
 {
-  "user": "not test",
+  "user": {
+    //trelloToken
+  },
   "boards": [
     {
       "boardId": "CaTOREX3",
       "trelloLists": [
         {
-          "name": "Sprint 4",
-          "trelloId": "5915eb1e714812198d1d33be"
-        }
-      ]
-    },
-    {
-      "boardId": "J8XL7JHv",
-      "trelloLists": [
-        {
-          "name": "Allan",
-          "trelloId": "59402de2ff825ccda6f56645"
-        },
-        {
-          "name": "Alex",
-          "trelloId": "59402de578d2db0c0fce82d5"
-        },
-        {
-          "name": "Ready to Merge",
-          "trelloId": "589ccf98354e406bee744189"
+          "name": "MACH1",
+          "trelloId": "5981727d68c2d7849f907236"
         }
       ]
     }
