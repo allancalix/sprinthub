@@ -4,9 +4,9 @@ const qs = require('query-string');
 const db = require('./Db');
 
 class Trello {
-  constructor() {
-    //trellokey
-    //trellotoken
+  constructor(token) {
+    this.key = '4277ea22952d77494356172dd27fa7d0';
+    this.token = token;
    }
 
   login() {
@@ -85,28 +85,3 @@ class Trello {
 }
 
 module.exports = Trello;
-
-  // queryCards(listId, boardId, name) {
-  //   const params = {
-  //     cards: 'open',
-  //     card_fields: 'name',
-  //     key: this.key,
-  //     fields: 'name,labels,url',
-  //     token: this.token,
-  //     checklists: 'all'
-  //   }
-  //   const paramString = `/1/lists/${listId}/cards/open?${qs.stringify(params)}`
-  //   const details = {
-  //     boardId: boardId,
-  //     checkListId: listId,
-  //     name: name
-  //   }
-
-  //   let promise = this.sendRequest(details, paramString, (data) => {console.log(data)});
-
-  //   return new Promise(function(resolve, reject) {
-  //     promise.then(data => {
-  //       resolve(data);
-  //     }).catch(e => {console.log(e)});
-  //   });
-  // }

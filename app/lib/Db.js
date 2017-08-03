@@ -76,6 +76,10 @@ class Db {
   isTrelloTokenSet() {
     return db.get('user').get('trelloToken').value() ? true : false;
   }
+
+  returnTrelloToken() {
+    return db.get('user').get('trelloToken').value();
+  }
 }
 
 module.exports = new Db();
