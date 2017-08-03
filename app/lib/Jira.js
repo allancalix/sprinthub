@@ -1,8 +1,7 @@
-'use strict';
 const request = require('request');
 
 const createJsonEntry = story => {
-  let entry = {
+  const entry = {
     update: {},
     fields: {
       project: {
@@ -13,64 +12,63 @@ const createJsonEntry = story => {
         name: story.issueType
       }
     }
-  }
+  };
 
   const description = parseDescription(story.criteria);
 
   entry.fields = Object.assign(entry.fields, {
-    description: description,
+    description,
     ...story.additionalFields
   });
 
   return entry;
-}
+};
 
 const parseDescription = checklists => {
   let description = '';
 
-  for(let checklist of checklists) {
-    description += `{panel:title=${checklist.name}|borderStyle=solid|borderColor=#ccc|borderWidth=1px}\n`;
-    for(let criteria of checklist.checkItems) {
-      description += `* ${criteria.name}\n`;
+  for (let i = 0, j = checklists.length; i < j; i += 1) {
+    description += `{panel:title=${checklists[i].name}|borderStyle=solid|borderColor=#ccc|borderWidth=1px}\n`;
+    for (let n = 0, m = checklists[i].checkItems.length; n < m; n += 1) {
+      description += `* ${checklists[i].name}\n`;
     }
     description += '{panel}\n';
   }
 
   return description;
-}
+};
 
 const createTasksRequest = (payload, cb) => {
-  //const options
 
   request(options, (error, res, body) => {
     console.log(res.statusCode);
     cb(JSON.parse(body));
   });
-}
+};
 
 /* This method is used to generate tasks for the start of a sprint */
-exports.createTask =  (boards, stories) => {
-  let storyBoardLists = []
-  boards.map(board => {
-    board.trelloLists.map(list => {
-      storyBoardLists.push(list.trelloId);
-    });
-  });
+exports.createTask = (boards, stories) => {
+  const storyBoardLists = [];
+  boards.map(board =>
+    board.trelloLists.map(list =>
+      storyBoardLists.push(list.trelloId)
+    )
+  );
 
-  let jiraPayload = {
+  const jiraPayload = {
     issueUpdates: []
-  }
+  };
 
-  let orderedStories = []
+  const orderedStories = [];
 
-  for(let list of storyBoardLists) {
-    let storyEntry = stories[list].map(story => {
+  for (let list of storyBoardLists) {
+    const storyEntry = stories[list].map(story => {
       orderedStories.push(story);
       return createJsonEntry({
         name: story.name,
         criteria: story.checklists,
-        issueType: "Task",
-        key: "TEST",
+        issueType: 'Task',
+        key: 'TEST',
         additionalFields: {}
       });
     });
@@ -104,11 +102,11 @@ exports.createTask =  (boards, stories) => {
               break;
             case 'ui':
               jiraPayload.issueUpdates = [...jiraPayload.issueUpdates,
-                createJsonEntry({ 
+                createJsonEntry({
                   name: `UI: ${orderedStories[i].name}`,
                   criteria: orderedStories[i].checklists,
-                  issueType: "Sub-task",
-                  key: "TEST",
+                  issueType: 'Sub-task',
+                  key: 'TEST',
                   additionalFields: {
                     parent: {
                       key: data.issues[i].key

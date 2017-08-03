@@ -1,7 +1,7 @@
 // @flow
 import React, { Component } from 'react';
 import TrackedLists from './TrackedLists';
-import styles from './BoardList.css';
+import styles from './css/BoardList.css';
 
 type Props = {
     removeTrelloList: () => void,

@@ -3,12 +3,12 @@ import React from 'react';
 import { Switch, Route } from 'react-router';
 import App from './containers/App';
 import HomePage from './containers/HomePage';
-import LoginPage from './containers/LoginPage';
+import JiraFormPage from './containers/JiraFormPage';
 
 export default () => (
   <App>
     <Switch>
-      <Route path="/login" component={LoginPage} />
+      <Route path="/jira" component={JiraFormPage} />
       <Route path="/" component={HomePage} />
     </Switch>
   </App>

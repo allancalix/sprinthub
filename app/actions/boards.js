@@ -1,8 +1,8 @@
 // @flow
-import  type { boardsStateType } from '../reducers/boards';
+import { find, flow, remove, get } from 'lodash/fp';
+import type { boardsStateType } from '../reducers/boards';
 import * as types from './actionTypes';
 import Sprint from '../lib/Sprint';
-import { find, flow, remove, get } from 'lodash/fp';
 
 export function loadBoardsSuccess(boards) {
   return { type: types.LOAD_BOARDS_SUCCESS, boards };
@@ -23,7 +23,7 @@ export function loadBoards() {
       }).catch(error => {
         // console.log(error);
       });
-  }
+  };
 }
 
 export function addTrelloList(boardId, listName) {
@@ -39,7 +39,7 @@ export function addTrelloList(boardId, listName) {
     }).catch(error => {
       // console.log(error);
     });
-  }
+  };
 }
 
 export function removeTrelloList(boardId, listId) {
@@ -51,13 +51,13 @@ export function removeTrelloList(boardId, listId) {
         get('trelloLists'),
         remove({trelloId: listId})
       )(boardState.boards);
-      let newState = boardState.boards.map(board =>
+      const newState = boardState.boards.map(board =>
        board.boardId === boardId ? Object.assign(board, {trelloLists: reducedList}) : board
       );
-      (message === 'removedEmptyBoard') ? 
-        dispatch(loadBoards()):dispatch(removeTrelloListSuccess(newState))
+      message === 'removedEmptyBoard' ?
+        dispatch(loadBoards()) : dispatch(removeTrelloListSuccess(newState));
     }).catch(error => {
       console.log(error);
     });
-  }
+  };
 }

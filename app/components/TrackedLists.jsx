@@ -4,16 +4,25 @@ import CardList from './CardList';
 
 type Props = {
   toRemove: () => void,
+  exportList: () => void,
+  selectActiveStory: () => void,
   boardId: string,
-  lists: Array,
-  cards: Object
-}
+  selectedStory: Object,
+  cards: Object,
+  lists: Object
+};
 
-const TrackedLists = ({boardId, lists, cards, toRemove, selectedStory, selectActiveStory, exportList}: Props) => {
-  return (
+const TrackedLists = ({
+  boardId,
+  lists,
+  cards,
+  toRemove,
+  selectedStory,
+  selectActiveStory,
+  exportList }: Props) => (
     <div>
-      {lists.map(list => 
-        <li key={list.trelloId}>
+      {lists.map(list =>
+        (<li key={list.trelloId}>
           <ul>
             <h3>{list.name}</h3>
             <button value={`${boardId} ${list.trelloId}`} onClick={toRemove}>Remove</button>
@@ -22,12 +31,12 @@ const TrackedLists = ({boardId, lists, cards, toRemove, selectedStory, selectAct
               id={list.trelloId}
               cards={cards}
               selectedStory={selectedStory}
-              selectActiveStory={selectActiveStory} />
+              selectActiveStory={selectActiveStory}
+            />
           </ul>
-        </li>
+        </li>)
       )}
     </div>
   );
-}
 
 export default TrackedLists;

@@ -1,9 +1,18 @@
 'use strict';
+
 const low = require('lowdb');
 const _ = require('lodash');
 const db = low('./data/db.json', {storage: require('lowdb/lib/storages/file-async')});
 
 class Db {
+  init() {
+    if (db.get('user').value() === undefined) {
+      db
+      .defaults({ user: { trelloToken: '' }, boards: [] })
+      .write();
+    }
+  }
+
   saveSelectedList(trelloData, details) {
     if (!db.get('boards').some({boardId: details.boardId}).value()) {
       db

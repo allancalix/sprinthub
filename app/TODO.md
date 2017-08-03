@@ -1,2 +1,10 @@
-#Goals To-Do Today
-- Add in Card data for each Tracked list` 
+#GOALS
+
+Find a way to initialize the database... perhaps on app.ready? Perhaps earlier. Try catch may be sufficient.
+
+{
+  user: {
+    trelloKey: ""
+  },
+  boards: []
+}
