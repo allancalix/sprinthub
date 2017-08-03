@@ -1,13 +1,15 @@
 'use strict';
-const trello = require('./Trello');
+const TrelloRequest = require('./Trello');
 const fs = require('fs');
 const db = require('./Db');
-
-const Trello = new trello();
 
 class Sprint {
   isTrelloTokenSet() {
     return db.isTrelloTokenSet();
+  }
+
+  fetchTrelloToken() {
+    return db.returnTrelloToken();
   }
 
   activateTrello(token) {
@@ -15,15 +17,23 @@ class Sprint {
   }
 
   authenticateTrello() {
-    return Trello.login();
+    let Trello = new TrelloRequest(null);
+    const authenticationUrl = Trello.login();
+    Trello = null;
+    return authenticationUrl;
   }
 
   trackNewList(boardId, name) {
+    let Trello = new TrelloRequest(this.fetchTrelloToken());
     const promise = Trello.queryLists(boardId, name);
     return new Promise((resolve, reject) => {
       promise.then(message => {
+        Trello = null;
         resolve(message);
-      }).catch(e => reject(e));
+      }).catch(e => {
+        Trello = null;
+        reject(e)
+      });
     });
   }
 
@@ -37,12 +47,17 @@ class Sprint {
   }
 
   fetchCards(lists) {
+    let Trello = new TrelloRequest(this.fetchTrelloToken());
     const promise = Trello.queryCards(lists);
 
     return new Promise((resolve, reject) => {
       promise.then(message => {
+        Trello = null;
         resolve(message);
-      }).catch(e => reject(e));
+      }).catch(e => {
+        Trello = null;
+        reject(e)
+      });
     });
   }
 
