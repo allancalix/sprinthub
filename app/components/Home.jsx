@@ -7,7 +7,6 @@ import AddListForm from './AddListModal';
 import BoardList from './BoardList';
 import CheckListPanel from './CheckListPanel';
 import { exportRawData, authenticateTrello } from '../lib/Sprint';
-import * as Jira from '../lib/Jira';
 
 const globalVar = () => {};
 
@@ -37,7 +36,6 @@ class Home extends Component<void, Props, State> {
     super(props);
 
     this.toggleAddList = this.toggleAddList.bind(this);
-    this.test = this.test.bind(this);
     this.exportList = this.exportList.bind(this);
     this.updateBoardsState = this.updateBoardsState.bind(this);
     this.trackList = this.trackList.bind(this);
@@ -71,11 +69,6 @@ class Home extends Component<void, Props, State> {
     if (this.props.boards !== nextProps.boards) {
       this.setState({ boards: nextProps.boards });
     }
-  }
-
-  test(event: {preventDefault: () => void}) {
-    event.preventDefault();
-    Jira.createTask(this.props.boards, this.props.lists);
   }
 
   login(event: {preventDefault: () => void}) {
@@ -118,9 +111,8 @@ class Home extends Component<void, Props, State> {
     return (
       <div>
         <div className={styles.container} data-tid="container">
-          <h2 onClick={this.test}>Sprint Hub</h2>
+          <h2>Sprint Hub</h2>
           <nav>
-            <Link to="/login">To Login</Link>
             <Link to="/jira">Make Jira Board</Link>
             {!this.props.login && <button onClick={this.login}>Login</button>}
             <button onClick={this.toggleAddList}>Add List</button>

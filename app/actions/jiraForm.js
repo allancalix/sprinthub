@@ -1,5 +1,5 @@
 // @flow
-import  type { jiraFormStateType } from '../reducers/jiraForm';
+import type { jiraFormStateType, actionType } from '../reducers/jiraForm';
 import * as types from './actionTypes';
 import Jira from '../lib/Jira';
 
@@ -8,13 +8,23 @@ export function getOptionsSuccess(options) {
 }
 
 
-export function getOptions() {
-  return (dispatch: (action: actionType) => void) => {
-    return Jira.fetcfetchIssueFieldshCards().then(data => {
-      const options = [...data.projects[0].issuetypes];      
-      dispatch(getOptionsSuccess(options));
-      }).catch(error => {
-      console.log(error);
-      });
-  }
+export function getOptions({ domain, project, username, password }) {
+  return (dispatch: (action: actionType) => void) => (
+    Jira.fetchIssueFields({ domain, project, username, password }, data =>
+      dispatch(getOptionsSuccess(Object.assign(
+        {},
+        data,
+        { stateSet: true },
+        { domain, project, username, password })
+      ))
+    )
+  );
 }
+
+export function createJiraForm(boards, lists, form) {
+  return (dispatch: (action: actionType) => void) => (
+    Jira.createTask(boards, lists, form)
+      // dispatch(createJiraFormSuccess());
+  );
+}
+

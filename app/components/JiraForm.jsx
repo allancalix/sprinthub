@@ -1,44 +1,103 @@
 // @flow
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { ipcRenderer } from 'electron';
-import TextInput from './common/TextInput';
-import { fetchIssueFields } from '../lib/Jira';
+import { forOwn, filter } from 'lodash';
+import JiraLogin from './JiraLogin';
+import SelectTask from './SelectTask';
+import TaskForm from './TaskForm';
 
-ipcRenderer.on('return-token', (event, token) => {
-  globalVar.callback(token);
-});
-
-// type Props = {
-//   setTrelloToken: () => void,
-//   loadStatus: () => void,
-//   login: boolean
-// };
-
-class JiraForm extends Component<void, Props, void> {
-  constructor(props) {
-    super(props);
-
-    this.updateField = this.updateField.bind(this);
-    this.getFieldOptions = this.getFieldOptions.bind(this);
+type Props = {
+  getOptions: () => void,
+  jiraForm: {
+    username: string,
+    password: string,
+    stateSet: boolean,
+    domain: string,
+    tasks: Array<{ id: string, name: string, iconUrl: string }>
   }
+};
 
+type State = {
+  form: {
+    domain: string,
+    project: string,
+
+  }
+};
+
+class JiraForm extends Component<void, Props, State> {
   state = {
+    exclude: ['Description', 'Summary', 'Key', 'Issue Type'],
     form: {
-      domain: ''
+      domain: this.props.jiraForm.domain,
+      project: this.props.jiraForm.project,
+      username: this.props.jiraForm.username,
+      password: this.props.jiraForm.password,
+      issuetype: this.props.jiraForm.tasks.length > 0 ? this.props.jiraForm.tasks[0].id : ''
     },
+    errors: {
+      username: '',
+      password: ''
+    }
   }
 
-  updateField(event: { target: { name: string, value: string } }) {
+  componentWillReceiveProps(nextProps: Object) {
+    if (this.props.jiraForm !== nextProps.jiraForm && (nextProps.jiraForm.tasks.length > 0)) {
+      this.setState({ form: {
+        issuetype: nextProps.jiraForm.tasks[0].id,
+        username: nextProps.jiraForm.username,
+        password: nextProps.jiraForm.password,
+        domain: nextProps.jiraForm.domain,
+        project: nextProps.jiraForm.project
+      } });
+    }
+  }
+
+  updateField = (event: { target: { name: string, value: string } }) => {
     const field = event.target.name;
     const form = this.state.form;
     form[field] = event.target.value;
-    return this.setState({ form: form });
+    return this.setState({ form });
   }
 
-  getFieldOptions(event) {
+  createJiraBoard = (event: {preventDefault: () => void}) => {
     event.preventDefault();
-    fetchIssueFields(this.state.form.domain);
+    this.props.createJiraForm(this.props.boards, this.props.list, this.state.form);
+  }
+
+  getFieldOptions = (event: { preventDefault: () => void }) => {
+    event.preventDefault();
+    if (this.props.jiraForm.stateSet) {
+      this.setState({
+        form: {
+          username: this.props.jiraForm.username,
+          password: this.props.jiraForm.password,
+        }
+      });
+    }
+    this.props.getOptions(this.state.form);
+  }
+
+  parseOptionalFields = () => {
+    const fields = this.props.jiraForm.fieldsMap[this.state.form.issuetype];
+    let optionalFields = [];
+    forOwn(fields, (value) => {
+      if (!value.required) {
+        optionalFields = [...optionalFields, value];
+      }
+    });
+    optionalFields = filter(optionalFields, field => {
+      let isExcluded = false;
+      for (let i = 0, j = this.state.exclude.length; i < j; i += 1) {
+        if (this.state.exclude[i] === field.name) {
+          isExcluded = true;
+        }
+      }
+      if (!isExcluded) {
+        return field;
+      }
+    });
+    return optionalFields;
   }
 
   render() {
@@ -46,18 +105,29 @@ class JiraForm extends Component<void, Props, void> {
       <div>
         <h1>JIRA FORM</h1>
         <Link to="/">Back Home</Link>
-        <TextInput
-          label={"Domain: "}
-          name={"domain"}
-          placeholder={"domain.jira.com"}
-          value={this.state.form.domain}
-          onChange={this.updateField}
-          error={""}
-        />
-        <button onClick={this.getFieldOptions}>Get Fields</button>
+        {!this.props.jiraForm.stateSet ?
+          <JiraLogin
+            form={this.state.form}
+            onChange={this.updateField}
+            onSubmit={this.getFieldOptions}
+            errors={this.state.errors}
+          />
+          : <div><h3>{this.props.jiraForm.domain}</h3></div>
+        }
+        {this.props.jiraForm.stateSet &&
+          <div>
+            <SelectTask
+              onChange={this.updateField}
+              tasks={this.props.jiraForm.tasks}
+            />
+            <TaskForm optionalFields={this.parseOptionalFields()} />
+          </div>
+        }
+        <button onClick={this.createJiraBoard}>CREATE</button>
       </div>
     );
   }
 }
 
 export default JiraForm;
+// Areas populated by boards: description + summary + story points

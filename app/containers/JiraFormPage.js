@@ -6,13 +6,14 @@ import * as JiraFormActions from '../actions/jiraForm';
 
 function mapStateToProps(state) {
   return {
-    jiraFormj: state.jiraForm,
-    boards: state.boards
+    jiraForm: state.jiraForm,
+    boards: state.boards,
+    list: state.list
   };
 }
 
 function mapDispatchtoProps(dispatch) {
-  return bindActionCreators(Object.assign({}), JiraFormActions, dispatch);
+  return bindActionCreators(Object.assign({}, JiraFormActions), dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchtoProps)(JiraForm);

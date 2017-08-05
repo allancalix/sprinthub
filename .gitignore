@@ -1,3 +1,6 @@
+# Local storage
+data/db.json
+
 # Logs
 logs
 *.log

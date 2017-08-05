@@ -1,5 +1,6 @@
 // @flow
 import React from 'react';
+import styles from './TextInput.css';
 
 type Props = {
   name: string,
@@ -8,21 +9,22 @@ type Props = {
   placeholder: string,
   value: string,
   error: string
-}
+};
 
-const TextInput = ({name, label, onChange, placeholder, value, error}: Props) => {
+const TextInput = ({ name, label, onChange, placeholder, value, error }: Props) => {
   return (
-    <div>
-      <label htmlFor={name}>{label}</label>
+    <div className={styles.floatingLabel}>
+      <label htmlFor={name}>{label}</label><br />
       <input
         type="text"
         name={name}
         placeholder={placeholder}
         value={value}
-        onChange={onChange} />
+        onChange={onChange}
+      />
       {error && <div className="error">{error}</div>}
     </div>
   );
-}
+};
 
 export default TextInput;
