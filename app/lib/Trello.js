@@ -4,6 +4,7 @@ const db = require('./Db');
 
 class Trello {
   constructor(token) {
+    this.key = '4277ea22952d77494356172dd27fa7d0';
     this.token = token;
   }
 
@@ -39,7 +40,7 @@ class Trello {
     });
   }
 
-  queryLists(boardId, name) {
+  queryLists(board, name) {
     const params = {
       cards: 'none',
       fields: 'name',
@@ -48,9 +49,10 @@ class Trello {
       token: this.token
     };
 
-    const paramString = `1/boards/${boardId}/lists?${qs.stringify(params)}`;
+    const paramString = `1/boards/${board.id}/lists?${qs.stringify(params)}`;
     const details = {
-      boardId,
+      boardId: board.id,
+      boardName: board.boardName,
       name
     };
 
@@ -76,6 +78,18 @@ class Trello {
         resolve(data))
       .catch(e => reject(e));
     });
+  }
+
+  mapBoardName(id, cb) {
+    const params = { 
+      fields: 'name, id, shorturl',
+      key: this.key,
+      token: this.token
+    };
+
+    const paramString = `/1/boards/${id}?${qs.stringify(params)}`;
+
+    this.sendRequest(null, paramString, cb);
   }
 }
 

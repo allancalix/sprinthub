@@ -47,7 +47,7 @@ class BoardList extends Component<void, Props, void>{
       <div>
         {this.state.boards.map(board => 
           <ul className={styles.boardList} key={board.boardId}>
-            <h3>{board.boardId}</h3>
+            <h3>{board.boardName}</h3><span>{board.boardId}</span>
             <TrackedLists
               boardId={board.boardId}
               lists={board.trelloLists}

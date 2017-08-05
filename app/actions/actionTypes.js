@@ -16,3 +16,6 @@ export const REMOVE_TRELLO_LIST_SUCCESS = 'REMOVE_TRELLO_LIST_SUCCESS';
 
 // list.js
 export const MAP_CARDS_SUCCESS = 'MAP_CARDS_SUCCESS';
+
+// jiraForm.js
+export const GET_OPTIONS_SUCCESS = 'GET_OPTIONS_SUCCESS';

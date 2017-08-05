@@ -34,6 +34,7 @@ export function addTrelloList(boardId, listName) {
           [...board.trelloLists, {name: listName, trelloId: success.id}] : board.trelloLists
         return board;
       });
+      console.log(success);
       if(success.newBoard) { dispatch(loadBoards()) };
       dispatch(addTrelloListSuccess(newState))
     }).catch(error => {

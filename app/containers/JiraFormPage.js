@@ -2,15 +2,17 @@
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import JiraForm from '../components/JiraForm';
+import * as JiraFormActions from '../actions/jiraForm';
 
 function mapStateToProps(state) {
   return {
-    options: {},
+    jiraFormj: state.jiraForm,
+    boards: state.boards
   };
 }
 
 function mapDispatchtoProps(dispatch) {
-  return bindActionCreators(Object.assign({}), dispatch);
+  return bindActionCreators(Object.assign({}), JiraFormActions, dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchtoProps)(JiraForm);

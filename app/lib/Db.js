@@ -1,5 +1,3 @@
-'use strict';
-
 const low = require('lowdb');
 const _ = require('lodash');
 const db = low('./data/db.json', {storage: require('lowdb/lib/storages/file-async')});
@@ -13,18 +11,21 @@ class Db {
     }
   }
 
-  saveSelectedList(trelloData, details) {
-    if (!db.get('boards').some({boardId: details.boardId}).value()) {
-      db
-        .get('boards')
-        .push({boardId: details.boardId, trelloLists: []})
-        .write()
-        .then(() => {details.newBoard = true});
-    }
+  hasBoard(id) {
+    return db.get('boards').some({ boardId: id }).value();
+  }
 
+  saveSelectedList(trelloData, details) {    
     return new Promise(function(resolve, reject) {
       const list = _.find(trelloData, {name: details.name});
       if (list) {
+        if (!db.get('boards').some({ boardId: details.boardId }).value()) {
+          db
+            .get('boards')
+            .push({boardId: details.boardId, boardName: details.boardName, trelloLists: []})
+            .write()
+            .then(() => {details.newBoard = true});
+        }
         if (!db.get('boards').find({boardId: details.boardId}).get('trelloLists').some({name: details.name}).value()) {
           db
             .get('boards')

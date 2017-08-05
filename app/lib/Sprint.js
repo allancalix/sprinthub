@@ -23,11 +23,27 @@ class Sprint {
     return authenticationUrl;
   }
 
-  trackNewList(boardId, name) {
+  // Adding a new board doesn't cause "loadBoard" to fire and update the view
+  // Problem is with promise.listquery being set in the wrong closure
+  trackNewList(id, name) {
     let Trello = new TrelloRequest(this.fetchTrelloToken());
-    const promise = Trello.queryLists(boardId, name);
+    const board = { id };
+    const promise = {};
+
+    if (!db.hasBoard(board.id)) {
+      Trello.mapBoardName(board.id, boardInfo => {
+        return new Promise(resolve => {
+          board.boardName = boardInfo.name;
+          promise.listquery = Trello.queryLists(board, name);
+        });
+      });
+    } else {
+      board.boardName = 'n/a';
+      promise.listquery = Trello.queryLists(board, name);
+    }
+
     return new Promise((resolve, reject) => {
-      promise.then(message => {
+      promise.listquery.then(message => {
         Trello = null;
         resolve(message);
       }).catch(e => {
