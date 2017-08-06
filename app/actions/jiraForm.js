@@ -23,7 +23,9 @@ export function getOptions({ domain, project, username, password }) {
 
 export function createJiraForm(boards, lists, form) {
   return (dispatch: (action: actionType) => void) => (
-    Jira.createTask(boards, lists, form)
+    Jira.createTask(boards, lists, form, data => {
+      console.log(data);
+    })
       // dispatch(createJiraFormSuccess());
   );
 }

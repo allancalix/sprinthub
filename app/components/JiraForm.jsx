@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import { forOwn, filter } from 'lodash';
 import JiraLogin from './JiraLogin';
 import SelectTask from './SelectTask';
-import TaskForm from './TaskForm';
 
 type Props = {
   getOptions: () => void,
@@ -56,6 +55,13 @@ class JiraForm extends Component<void, Props, State> {
   updateField = (event: { target: { name: string, value: string } }) => {
     const field = event.target.name;
     const form = this.state.form;
+    form[field] = event.target.value;
+    return this.setState({ form });
+  }
+
+  addField = (event: { target: { name: string, value: string } }) => {
+    const field = event.target.name;
+    const addField = this.state.addField;
     form[field] = event.target.value;
     return this.setState({ form });
   }
@@ -112,22 +118,25 @@ class JiraForm extends Component<void, Props, State> {
             onSubmit={this.getFieldOptions}
             errors={this.state.errors}
           />
-          : <div><h3>{this.props.jiraForm.domain}</h3></div>
+          : <div>
+            <h3>Domain: {this.props.jiraForm.domain}</h3>
+            <p> User: {this.props.jiraForm.username}</p>
+            <p> Project: {this.props.jiraForm.project}</p>
+          </div>
         }
         {this.props.jiraForm.stateSet &&
           <div>
             <SelectTask
               onChange={this.updateField}
               tasks={this.props.jiraForm.tasks}
+              fetchOptions={this.parseOptionalFields}
+              jiraSubmit={this.createJiraBoard}
             />
-            <TaskForm optionalFields={this.parseOptionalFields()} />
           </div>
         }
-        <button onClick={this.createJiraBoard}>CREATE</button>
       </div>
     );
   }
 }
 
 export default JiraForm;
-// Areas populated by boards: description + summary + story points

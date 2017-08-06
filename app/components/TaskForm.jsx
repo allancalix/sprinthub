@@ -15,11 +15,11 @@ type Props = {
 
 const TaskForm = ({ optionalFields }: Props) => (
   <div>
-    <select>
-      {optionalFields.map(field =>
-        <option key={field.key}>{field.name}</option>
-      )}
-    </select>
+    {optionalFields.map(field =>
+      [<h4 key={field.key}>{field.name}</h4>,
+        field.schema.type === 'array' && <input type="text" />
+      ]
+    )}
   </div>
 );
 

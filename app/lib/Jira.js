@@ -38,7 +38,7 @@ const parseDescription = checklists => {
   return description;
 };
 
-const createTasksRequest = (payload, overwriteDefault = {}, cb) => {
+const createTasksRequest = (payload, overwriteDefault = {}) => {
   let options = {
     url: 'https://sprinthub.atlassian.net/rest/api/2/issue/bulk',
     auth: {
@@ -53,9 +53,12 @@ const createTasksRequest = (payload, overwriteDefault = {}, cb) => {
     body: JSON.stringify(payload)
   };
   options = Object.assign(options, overwriteDefault);
-  request(options, (error, res, body) => (
-    res.statusCode === 200 ? cb(JSON.parse(body)) : cb({ error: body })
-  ));
+
+  return new Promise((resolve, reject) => {
+    request(options, (error, res, body) => {
+      res.statusCode === 200 || res.statusCode === 201 ? resolve(JSON.parse(body)) : resolve({ error: body })
+    });
+  });
 };
 
 const splitStoryPoints = name => {
@@ -63,6 +66,122 @@ const splitStoryPoints = name => {
   const storyPoints = parsedName[1];
   const splitName = name.split(parsedName[0])[1];
   return { name: splitName, storyPoints };
+};
+
+const makeSubtask = (story, data, requestOptions, form) => {
+  let createdSubtasks = [];
+  const jiraPayload = {
+    issueUpdates: []
+  };
+  for (let label of story.labels) {
+    label = label.name.toLowerCase();
+    switch (label) {
+      case 'qa':
+        jiraPayload.issueUpdates = [...jiraPayload.issueUpdates,
+          createJsonEntry({
+            name: `QA: ${story.name}`,
+            criteria: story.checklists,
+            issueType: 'Sub-task',
+            key: form.project,
+            additionalFields: {
+              parent: {
+                key: data.key
+              }
+            }
+          })];
+        break;
+      case 'ui':
+        jiraPayload.issueUpdates = [...jiraPayload.issueUpdates,
+          createJsonEntry({
+            name: `UI: ${story.name}`,
+            criteria: story.checklists,
+            issueType: 'Sub-task',
+            key: form.project,
+            additionalFields: {
+              parent: {
+                key: data.key
+              }
+            }
+          })];
+        break;
+      case 'ux':
+        jiraPayload.issueUpdates = [...jiraPayload.issueUpdates,
+          createJsonEntry({
+            name: `UX: ${story.name}`,
+            criteria: story.checklists,
+            issueType: 'Sub-task',
+            key: form.project,
+            additionalFields: {
+              parent: {
+                key: data.key
+              }
+            }
+          })];
+        break;
+      case 'js':
+        jiraPayload.issueUpdates = [...jiraPayload.issueUpdates,
+          createJsonEntry({
+            name: `JS: ${story.name}`,
+            criteria: story.checklists,
+            issueType: 'Sub-task',
+            key: form.project,
+            additionalFields: {
+              parent: {
+                key: data.key
+              }
+            }
+          })];
+        break;
+      case 'api':
+        jiraPayload.issueUpdates = [...jiraPayload.issueUpdates,
+          createJsonEntry({
+            name: `API: ${story.name}`,
+            criteria: story.checklists,
+            issueType: 'Sub-task',
+            key: form.project,
+            additionalFields: {
+              parent: {
+                key: data.key
+              }
+            }
+          })];
+        break;
+      case 'ta':
+        jiraPayload.issueUpdates = [...jiraPayload.issueUpdates,
+          createJsonEntry({
+            name: `TA: ${story.name}`,
+            criteria: story.checklists,
+            issueType: 'Sub-task',
+            key: form.project,
+            additionalFields: {
+              parent: {
+                key: data.key
+              }
+            }
+          })];
+        break;
+      case 'unity':
+        jiraPayload.issueUpdates = [...jiraPayload.issueUpdates,
+          createJsonEntry({
+            name: `UNITY: ${story.name}`,
+            criteria: story.checklists,
+            issueType: 'Sub-task',
+            key: form.project,
+            additionalFields: {
+              parent: {
+                key: data.key
+              }
+            }
+          })];
+        break;
+      default:
+        break;
+    }
+  }
+  if (jiraPayload.issueUpdates.length > 0) {
+    return createTasksRequest(jiraPayload, requestOptions);
+  }
+  return new Promise(reject => reject('This story needs no subtasks'));
 };
 
 exports.fetchIssueFields = (form, cb) => {
@@ -76,7 +195,8 @@ exports.fetchIssueFields = (form, cb) => {
     }
   };
 
-  createTasksRequest(null, overwriteDefault, (data) => {
+  const promise = createTasksRequest(null, overwriteDefault);
+  promise.then((data) => {
     const availableFields = {
       subtasks: [],
       tasks: [],
@@ -96,9 +216,9 @@ exports.fetchIssueFields = (form, cb) => {
 };
 
 /* This method is used to generate tasks for the start of a sprint */
-exports.createTask = (boards, stories, form) => {
+exports.createTask = (boards, stories, form, cb) => {
   const requestOptions = {
-    url: 'https://sprinthub.atlassian.net/rest/api/2/issue/bulk',
+    url: `https://${form.domain}/rest/api/2/issue/bulk`,
     auth: {
       user: form.username,
       pass: form.password
@@ -129,6 +249,7 @@ exports.createTask = (boards, stories, form) => {
         criteria: story.checklists,
         issueType: 'Task',
         key: form.project,
+        // customfield_10034: 
         additionalFields: {}
           // customfield_10010: [list.sprintName]
         // }
@@ -137,122 +258,28 @@ exports.createTask = (boards, stories, form) => {
 
     jiraPayload.issueUpdates = [...jiraPayload.issueUpdates, ...storyEntry];
   }
-
-  createTasksRequest(jiraPayload, requestOptions, data => {
-    // Callback to create subtasks from returned task keys
+// There exists a stupid bug where if the last story converted has no subtasks... the callback wont fire
+  createTasksRequest(jiraPayload, requestOptions).then(data => {
+    const jiraIssueMap = {};
+    for (let i = 0, j = orderedStories.length; i < j; i += 1) {
+      jiraIssueMap[orderedStories[i].id] = data.issues[i];
+    }
+    const filteredLabeless = orderedStories.filter(story => story.labels.length > 0);
     if (data.errors && data.errors.length === 0) {
-      for (let i = 0, j = data.issues.length; i < j; i += 1) {
-        let jiraPayload = {
-         issueUpdates: []
-        };
-        for (let label of orderedStories[i].labels) {
-          label = label.name.toLowerCase();
-          switch (label) {
-            case 'qa':
-              jiraPayload.issueUpdates = [...jiraPayload.issueUpdates,
-                createJsonEntry({
-                  name: `QA: ${orderedStories[i].name}`,
-                  criteria: orderedStories[i].checklists,
-                  issueType: 'Sub-task',
-                  key: 'TEST',
-                  additionalFields: {
-                    parent: {
-                      key: data.issues[i].key
-                    }
-                  }
-                })];
-              break;
-            case 'ui':
-              jiraPayload.issueUpdates = [...jiraPayload.issueUpdates,
-                createJsonEntry({
-                  name: `UI: ${orderedStories[i].name}`,
-                  criteria: orderedStories[i].checklists,
-                  issueType: 'Sub-task',
-                  key: 'TEST',
-                  additionalFields: {
-                    parent: {
-                      key: data.issues[i].key
-                    }
-                  }
-                })];
-              break;
-            case 'ux':
-              jiraPayload.issueUpdates = [...jiraPayload.issueUpdates,
-                createJsonEntry({
-                  name: `UX: ${orderedStories[i].name}`,
-                  criteria: orderedStories[i].checklists,
-                  issueType: 'Sub-task',
-                  key: 'TEST',
-                  additionalFields: {
-                    parent: {
-                      key: data.issues[i].key
-                    }
-                  }
-                })];
-              break;
-            case 'js':
-              jiraPayload.issueUpdates = [...jiraPayload.issueUpdates,
-                createJsonEntry({
-                  name: `JS: ${orderedStories[i].name}`,
-                  criteria: orderedStories[i].checklists,
-                  issueType: 'Sub-task',
-                  key: 'TEST',
-                  additionalFields: {
-                    parent: {
-                      key: data.issues[i].key
-                    }
-                  }
-                })];
-              break;
-            case 'api':
-              jiraPayload.issueUpdates = [...jiraPayload.issueUpdates,
-                createJsonEntry({
-                  name: `API: ${orderedStories[i].name}`,
-                  criteria: orderedStories[i].checklists,
-                  issueType: 'Sub-task',
-                  key: 'TEST',
-                  additionalFields: {
-                    parent: {
-                      key: data.issues[i].key
-                    }
-                  }
-                })];
-              break;
-            case 'ta':
-              jiraPayload.issueUpdates = [...jiraPayload.issueUpdates,
-                createJsonEntry({
-                  name: `TA: ${orderedStories[i].name}`,
-                  criteria: orderedStories[i].checklists,
-                  issueType: 'Sub-task',
-                  key: 'TEST',
-                  additionalFields: {
-                    parent: {
-                      key: data.issues[i].key
-                    }
-                  }
-                })];
-              break;
-            case 'unity':
-              jiraPayload.issueUpdates = [...jiraPayload.issueUpdates,
-                createJsonEntry({
-                  name: `UNITY: ${orderedStories[i].name}`,
-                  criteria: orderedStories[i].checklists,
-                  issueType: 'Sub-task',
-                  key: 'TEST',
-                  additionalFields: {
-                    parent: {
-                      key: data.issues[i].key
-                    }
-                  }
-                })];
-              break;
-            default:
-              break;
+      const createdSubtasks = {};
+      for (let i = 0, j = filteredLabeless.length; i < j; i += 1) {
+        const createSubtask = makeSubtask(
+          filteredLabeless[i],
+          jiraIssueMap[filteredLabeless[i].id],
+          requestOptions,
+          form
+        );
+        createSubtask.then(value => {
+          createdSubtasks[orderedStories[i].id] = value;
+          if (i === j - 1) {
+            cb({ success: true, subtasks: createdSubtasks, tasks: data.issues });
           }
-        }
-        if (jiraPayload.issueUpdates.length > 0) {
-          createTasksRequest(jiraPayload, data => { console.log(data) });
-        }
+        }).catch(e => { console.log(e); });
       }
     }
   });
