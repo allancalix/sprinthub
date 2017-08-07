@@ -94,7 +94,7 @@ class Home extends Component<void, Props, State> {
 
   toggleAddList(event: {preventDefault: () => void}) {
     event.preventDefault();
-    this.setState({ showAddList: !this.state.showAddList });
+    this.setState({ showAddList: !this.state.showAddList, board: { boardId: '', listName: '' } });
   }
 
   exportList(event: { target: {value: string} }) {
@@ -105,18 +105,19 @@ class Home extends Component<void, Props, State> {
   trackList(event: {preventDefault: () => void}) {
     event.preventDefault();
     this.props.addTrelloList(this.state.board.boardId, this.state.board.listName);
+    this.setState({ showAddList: !this.state.showAddList });
   }
 
   render() {
     return (
-      <div>
+      <div className={styles.header}>
+        <h2>Sprint Hub</h2>
+        <nav className={styles.nav}>
+          <Link to="/jira">Make Jira Board</Link>
+          {!this.props.login && <button onClick={this.login}>Login</button>}
+          <button onClick={this.toggleAddList}>Add List</button>
+        </nav>
         <div className={styles.container} data-tid="container">
-          <h2>Sprint Hub</h2>
-          <nav>
-            <Link to="/jira">Make Jira Board</Link>
-            {!this.props.login && <button onClick={this.login}>Login</button>}
-            <button onClick={this.toggleAddList}>Add List</button>
-          </nav>
           <BoardList
             boards={this.props.boards}
             lists={this.props.lists}
@@ -131,13 +132,14 @@ class Home extends Component<void, Props, State> {
               boards={this.state.board}
               onChange={this.updateBoardsState}
               onSubmit={this.trackList}
+              toggle={this.toggleAddList}
               errors={this.state.errors}
             />
           }
+          {Object.keys(this.state.selectedStory).length !== 0 &&
+            <CheckListPanel checklists={this.state.selectedStory} />
+          }
         </div>
-        {Object.keys(this.state.selectedStory).length !== 0 &&
-          <CheckListPanel checklists={this.state.selectedStory} />
-        }
       </div>
     );
   }

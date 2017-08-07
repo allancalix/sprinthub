@@ -44,8 +44,8 @@ class BoardList extends Component<void, Props, void> {
 
   render() {
     return (
-      <div>
-        {this.state.boards.map(board =>
+      <div className={styles.boardList}>
+        {this.state.boards.map(board => (
           <ul className={styles.boardList} key={board.boardId}>
             <h3>{board.boardName}</h3><span>{board.boardId}</span>
             <TrackedLists
@@ -57,7 +57,7 @@ class BoardList extends Component<void, Props, void> {
               selectedStory={this.props.selectedStory}
               selectActiveStory={this.props.selectActiveStory} />
           </ul>
-        )}
+        ))}
       </div>
     );
   }
