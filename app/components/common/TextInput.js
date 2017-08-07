@@ -16,7 +16,7 @@ const TextInput = ({ name, label, onChange, placeholder, value, error }: Props) 
     <div className={styles.floatingLabel}>
       <label htmlFor={name}>{label}</label><br />
       <input
-        type="text"
+        type={name === 'password' ? 'password' : 'text'}
         name={name}
         placeholder={placeholder}
         value={value}

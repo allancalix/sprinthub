@@ -20,25 +20,22 @@ export function loadBoards() {
   return (dispatch: (action: actionType) => void) => {
     return Sprint.returnTrackedBoards().then(boards => {
       dispatch(loadBoardsSuccess(boards));
-      }).catch(error => {
+    }).catch(error => {
         // console.log(error);
-      });
+    });
   };
 }
 
 export function addTrelloList(boardId, listName) {
   return (dispatch: (action: actionType) => void, getState) => {
-    return Sprint.trackNewList(boardId, listName).then(success => {  
+    return Sprint.trackNewList(boardId, listName, success => {
       let newState = getState().boards.map(board => {
-        board.trelloLists = board.boardId === boardId ? 
+        board.trelloLists = board.boardId === boardId ?
           [...board.trelloLists, {name: listName, trelloId: success.id}] : board.trelloLists
         return board;
       });
-      console.log(success);
-      if(success.newBoard) { dispatch(loadBoards()) };
-      dispatch(addTrelloListSuccess(newState))
-    }).catch(error => {
-      // console.log(error);
+      if(success.newBoard) { dispatch(loadBoards()) }
+      dispatch(addTrelloListSuccess(newState));
     });
   };
 }

@@ -1,5 +1,5 @@
 // @flow
-import React from 'react';
+import React, { Component } from 'react';
 import TaskForm from './TaskForm';
 
 type taskType = {
@@ -15,17 +15,50 @@ type Props = {
   fetchOptions: () => void,
 };
 
-const SelectTask = ({ tasks, onChange, jiraSubmit, fetchOptions }: Props) => (
-  <div>
-    <p>Please select a task type for stories</p>
-    <select name="issuetype" onChange={onChange}>
-      {tasks.map(task =>
-        <option key={task.id} value={task.name}>{task.name}</option>
-      )}
-    </select>
-    <TaskForm optionalFields={fetchOptions()} onChange={onChange} /><br />
-    <button onClick={jiraSubmit}>Create Board</button>
-  </div>
-);
+class SelectTask extends Component<void, Props, void> {
+  state = {
+    itemsToAdd: {}
+  }
+
+  trackTaskForm = (event: { target: { name: string, value: string } }) => {
+    const field = event.target.name;
+    const itemsToAdd = this.state.itemsToAdd;
+    itemsToAdd[field] = event.target.value;
+    return this.setState({ itemsToAdd });
+  }
+
+  addEntry = (event: { target: { name: string, value: string } }) => {
+    event.preventDefault();
+    const key = event.target.value;
+    const updateEntry = {
+      key,
+      value: this.state.itemsToAdd[key]
+    };
+    this.props.addField(updateEntry);
+    const form = this.state.itemsToAdd;
+    form[key] = '';
+    this.setState({ form })
+  }
+
+  render() {
+    return (
+      <div>
+        <select name="issuetype" value={this.props.selected} onChange={this.props.onChange}>
+          <option value={''} disabled> -- Select Task Type -- </option>
+          {this.props.tasks.map(task =>
+            <option key={task.id} value={task.name}>{task.name}</option>
+          )}
+        </select>
+        <TaskForm
+          optionalFields={this.props.fetchOptions()}
+          onChange={this.trackTaskForm}
+          taskList={this.state.itemsToAdd}
+          onSubmit={this.addEntry}
+        /><br />
+        <button onClick={this.props.jiraSubmit}>Create Board</button>
+      </div>
+    );
+  }
+}
 
 export default SelectTask;

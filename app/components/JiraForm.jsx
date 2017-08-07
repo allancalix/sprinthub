@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import { forOwn, filter } from 'lodash';
 import JiraLogin from './JiraLogin';
 import SelectTask from './SelectTask';
-import Jira from '../lib/Jira';
 
 type Props = {
   getOptions: () => void,
@@ -30,7 +29,8 @@ type State = {
 
 class JiraForm extends Component<void, Props, State> {
   state = {
-    exclude: ['Description', 'Summary', 'Key', 'Issue Type'],
+    exclude: ['Description', 'Summary', 'Key', 'Issue Type', 'Affects Version/s', 'Fix Version/s', 'Linked Issues'],
+    toAdd: {},
     optionsMap: {},
     matchingForm: '',
     form: {
@@ -38,7 +38,7 @@ class JiraForm extends Component<void, Props, State> {
       project: this.props.jiraForm.project,
       username: this.props.jiraForm.username,
       password: this.props.jiraForm.password,
-      issuetype: this.props.jiraForm.tasks.length > 0 ? this.props.jiraForm.tasks[0].name : ''
+      issuetype: ''
     },
     errors: {
       username: '',
@@ -48,13 +48,16 @@ class JiraForm extends Component<void, Props, State> {
 
   componentWillReceiveProps(nextProps: Object) {
     if (this.props.jiraForm !== nextProps.jiraForm && (nextProps.jiraForm.tasks.length > 0)) {
-      this.setState({ form: {
-        issuetype: nextProps.jiraForm.tasks[0].name,
-        username: nextProps.jiraForm.username,
-        password: nextProps.jiraForm.password,
-        domain: nextProps.jiraForm.domain,
-        project: nextProps.jiraForm.project
-      } });
+      const nextState = Object.assign({},
+        this.state.form,
+        { form: {
+          username: nextProps.jiraForm.username,
+          password: nextProps.jiraForm.password,
+          domain: nextProps.jiraForm.domain,
+          project: nextProps.jiraForm.project
+        } }
+      );
+      this.setState({ nextState });
     }
   }
 
@@ -76,12 +79,23 @@ class JiraForm extends Component<void, Props, State> {
         matchingForm: task[0].id
       });
     }
-    this.setState({ form }, () => this.props.getFields(this.state.form));
+    this.setState({ form, matchingForm: task[0].id }, () => this.props.getFields(this.state.form, task[0].id));
   }
 
   createJiraBoard = (event: {preventDefault: () => void}) => {
     event.preventDefault();
-    this.props.createJiraForm(this.props.boards, this.props.list, this.state.form);
+    if (this.state.form.issuetype === '') {
+      return false;
+    }
+    let pointsEntry = false;
+    forOwn(this.props.jiraForm.optionsMap[this.state.matchingForm], value => {
+      if (value.name === 'Story Points') {
+        const toAddState = this.state.toAdd;
+        toAddState.customfield_10044 = 0;
+        pointsEntry = toAddState;
+      }
+    });
+    this.props.createJiraForm(this.props.boards, this.props.list, this.state.form, pointsEntry || this.state.toAdd);
   }
 
   getFieldOptions = (event: { preventDefault: () => void }) => {
@@ -95,6 +109,24 @@ class JiraForm extends Component<void, Props, State> {
       });
     }
     this.props.getOptions(this.state.form);
+  }
+
+  pushNewField = entry => {
+    const toAdd = this.state.toAdd;
+    let appendEntry = [];
+    switch (entry.key) {
+      case 'components':
+        appendEntry = (toAdd.hasOwnProperty(entry.key))
+          ? [...this.state.toAdd[entry.key], {component: entry.value}] : [{component: entry.value}];
+        toAdd[entry.key] = appendEntry;
+        break;
+      default:
+        appendEntry = (toAdd.hasOwnProperty(entry.key))
+          ? [...this.state.toAdd[entry.key], entry.value] : [entry.value];
+        toAdd[entry.key] = appendEntry;
+        break;
+    }
+    this.setState({ toAdd });
   }
 
   parseOptionalFields = () => {
@@ -135,6 +167,7 @@ class JiraForm extends Component<void, Props, State> {
             <h3>Domain: {this.props.jiraForm.domain}</h3>
             <p> User: {this.props.jiraForm.username}</p>
             <p> Project: {this.props.jiraForm.project}</p>
+            <p> Issuetype: {this.state.form.issuetype}</p>
           </div>
         }
         {this.props.jiraForm.stateSet &&
@@ -142,8 +175,10 @@ class JiraForm extends Component<void, Props, State> {
             <SelectTask
               onChange={this.selectIssueType}
               tasks={this.props.jiraForm.tasks}
+              selected={this.state.form.issuetype}
               jiraSubmit={this.createJiraBoard}
               fetchOptions={this.parseOptionalFields}
+              addField={this.pushNewField}
             />
           </div>
         }

@@ -16,10 +16,11 @@ const createJsonEntry = story => {
 
   const description = parseDescription(story.criteria);
 
-  entry.fields = Object.assign(entry.fields, {
-    description,
-    ...story.additionalFields
-  });
+  entry.fields = Object.assign({},
+    entry.fields,
+    { description },
+    story.additionalFields
+  );
 
   return entry;
 };
@@ -30,7 +31,7 @@ const parseDescription = checklists => {
   for (let i = 0, j = checklists.length; i < j; i += 1) {
     description += `{panel:title=${checklists[i].name}|borderStyle=solid|borderColor=#ccc|borderWidth=1px}\n`;
     for (let n = 0, m = checklists[i].checkItems.length; n < m; n += 1) {
-      description += `* ${checklists[i].checkItems[n].name}\n`;
+      description += `{task}${checklists[i].checkItems[n].name}{task}\n`;
     }
     description += '{panel}\n';
   }
@@ -53,7 +54,7 @@ const createTasksRequest = (payload, overwriteDefault = {}) => {
     body: JSON.stringify(payload)
   };
   options = Object.assign(options, overwriteDefault);
-
+  console.log(payload);
   return new Promise((resolve, reject) => {
     request(options, (error, res, body) => {
       res.statusCode === 200 || res.statusCode === 201 ? resolve(JSON.parse(body)) : resolve({ error: body })
@@ -68,13 +69,14 @@ const splitStoryPoints = name => {
   return { name: splitName, storyPoints };
 };
 
-const makeSubtask = (story, data, requestOptions, form) => {
+const makeSubtask = (story, data, requestOptions, extras, form) => {
   let createdSubtasks = [];
   const jiraPayload = {
     issueUpdates: []
   };
   for (let label of story.labels) {
     label = label.name.toLowerCase();
+    const additionalFields = Object.assign({}, { parent: { key: data.key } }, extras);
     switch (label) {
       case 'qa':
         jiraPayload.issueUpdates = [...jiraPayload.issueUpdates,
@@ -83,11 +85,7 @@ const makeSubtask = (story, data, requestOptions, form) => {
             criteria: story.checklists,
             issueType: 'Sub-task',
             key: form.project,
-            additionalFields: {
-              parent: {
-                key: data.key
-              }
-            }
+            additionalFields
           })];
         break;
       case 'ui':
@@ -97,11 +95,7 @@ const makeSubtask = (story, data, requestOptions, form) => {
             criteria: story.checklists,
             issueType: 'Sub-task',
             key: form.project,
-            additionalFields: {
-              parent: {
-                key: data.key
-              }
-            }
+            additionalFields
           })];
         break;
       case 'ux':
@@ -111,11 +105,7 @@ const makeSubtask = (story, data, requestOptions, form) => {
             criteria: story.checklists,
             issueType: 'Sub-task',
             key: form.project,
-            additionalFields: {
-              parent: {
-                key: data.key
-              }
-            }
+            additionalFields
           })];
         break;
       case 'js':
@@ -125,11 +115,7 @@ const makeSubtask = (story, data, requestOptions, form) => {
             criteria: story.checklists,
             issueType: 'Sub-task',
             key: form.project,
-            additionalFields: {
-              parent: {
-                key: data.key
-              }
-            }
+            additionalFields
           })];
         break;
       case 'api':
@@ -139,11 +125,7 @@ const makeSubtask = (story, data, requestOptions, form) => {
             criteria: story.checklists,
             issueType: 'Sub-task',
             key: form.project,
-            additionalFields: {
-              parent: {
-                key: data.key
-              }
-            }
+            additionalFields
           })];
         break;
       case 'ta':
@@ -153,11 +135,7 @@ const makeSubtask = (story, data, requestOptions, form) => {
             criteria: story.checklists,
             issueType: 'Sub-task',
             key: form.project,
-            additionalFields: {
-              parent: {
-                key: data.key
-              }
-            }
+            additionalFields
           })];
         break;
       case 'unity':
@@ -167,11 +145,7 @@ const makeSubtask = (story, data, requestOptions, form) => {
             criteria: story.checklists,
             issueType: 'Sub-task',
             key: form.project,
-            additionalFields: {
-              parent: {
-                key: data.key
-              }
-            }
+            additionalFields
           })];
         break;
       default:
@@ -213,9 +187,9 @@ exports.fetchIssueFields = (form, cb) => {
   });
 };
 
-exports.fetchExtendedFields = (form, cb) => {
+exports.fetchExtendedFields = (form, id, cb) => {
   const overwriteDefault = {
-    url: `https://${form.domain}/rest/api/2/issue/createmeta?projectKeys=${form.project}&issueTypeIds=${form.issuetype}&expand=projects.issuetypes.fields`,
+    url: `https://${form.domain}/rest/api/2/issue/createmeta?projectKeys=${form.project}&issueTypeIds=${id}&expand=projects.issuetypes.fields`,
     method: 'GET',
     auth: {
       user: form.username,
@@ -239,7 +213,7 @@ exports.fetchExtendedFields = (form, cb) => {
 
 
 /* This method is used to generate tasks for the start of a sprint */
-exports.createTask = (boards, stories, form, cb) => {
+exports.createTask = (boards, stories, form, extras = {}, cb) => {
   const requestOptions = {
     url: `https://${form.domain}/rest/api/2/issue/bulk`,
     auth: {
@@ -266,22 +240,22 @@ exports.createTask = (boards, stories, form, cb) => {
     const storyEntry = stories[list.listId].map(story => {
       orderedStories.push(story);
       const name = (story.name.search(/\(([^)]+)\) /) === 0)
-        ? splitStoryPoints(story.name).name : story.name;
+        ? splitStoryPoints(story.name) : { name: story.name, storyPoints: 0 };
+      let storyPoints = {};
+      if (extras.hasOwnProperty('customfield_10044')) {
+        storyPoints = { customfield_10044: parseInt(name.storyPoints) };
+      }
       return createJsonEntry({
-        name,
+        name: name.name,
         criteria: story.checklists,
-        issueType: 'Task',
+        issueType: form.issuetype,
         key: form.project,
-        // customfield_10034: 
-        additionalFields: {}
-          // customfield_10010: [list.sprintName]
-        // }
+        additionalFields: Object.assign({}, extras, storyPoints)
       });
     });
 
     jiraPayload.issueUpdates = [...jiraPayload.issueUpdates, ...storyEntry];
   }
-// There exists a stupid bug where if the last story converted has no subtasks... the callback wont fire
   createTasksRequest(jiraPayload, requestOptions).then(data => {
     const jiraIssueMap = {};
     for (let i = 0, j = orderedStories.length; i < j; i += 1) {
@@ -295,6 +269,7 @@ exports.createTask = (boards, stories, form, cb) => {
           filteredLabeless[i],
           jiraIssueMap[filteredLabeless[i].id],
           requestOptions,
+          extras,
           form
         );
         createSubtask.then(value => {

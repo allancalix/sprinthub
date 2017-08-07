@@ -24,9 +24,9 @@ export function getOptions({ domain, project, username, password }) {
   );
 }
 
-export function getFields({ domain, project, username, password, issuetype }) {
+export function getFields({ domain, project, username, password, issuetype }, id) {
   return (dispatch: (action: actionType) => void, getState: () => void) => (
-    Jira.fetchExtendedFields({ domain, project, username, password, issuetype }, data => {
+    Jira.fetchExtendedFields({ domain, project, username, password, issuetype }, id, data => {
       const optionsMap = getState().jiraForm.optionsMap;
       dispatch(getFieldsSuccess(Object.assign({},
         optionsMap,
@@ -36,9 +36,9 @@ export function getFields({ domain, project, username, password, issuetype }) {
   );
 }
 
-export function createJiraForm(boards, lists, form) {
+export function createJiraForm(boards, lists, form, extras) {
   return (dispatch: (action: actionType) => void) => (
-    Jira.createTask(boards, lists, form, data => {
+    Jira.createTask(boards, lists, form, extras, data => {
       console.log(data);
     })
       // dispatch(createJiraFormSuccess());
