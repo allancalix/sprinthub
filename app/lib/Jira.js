@@ -186,7 +186,7 @@ const makeSubtask = (story, data, requestOptions, form) => {
 
 exports.fetchIssueFields = (form, cb) => {
   const overwriteDefault = {
-    url: `https://${form.domain}/rest/api/2/issue/createmeta?projectKeys=${form.project}&expand=projects.issuetypes.fields`,
+    url: `https://${form.domain}/rest/api/2/issue/createmeta?projectKeys=${form.project}`,
     method: 'GET',
     auth: {
       user: form.username,
@@ -200,7 +200,6 @@ exports.fetchIssueFields = (form, cb) => {
     const availableFields = {
       subtasks: [],
       tasks: [],
-      fieldsMap: {}
     };
     for (let i = 0, j = data.projects[0].issuetypes.length; i < j; i += 1) {
       const index = data.projects[0].issuetypes[i];
@@ -209,11 +208,35 @@ exports.fetchIssueFields = (form, cb) => {
         data.projects[0].issuetypes[i].subtask ?
         { subtasks: [...availableFields.subtasks, { id, name, iconUrl }] }
         : { tasks: [...availableFields.tasks, { id, name, iconUrl }] });
-      availableFields.fieldsMap[index.id] = index.fields;
     }
     cb(availableFields);
   });
 };
+
+exports.fetchExtendedFields = (form, cb) => {
+  const overwriteDefault = {
+    url: `https://${form.domain}/rest/api/2/issue/createmeta?projectKeys=${form.project}&issueTypeIds=${form.issuetype}&expand=projects.issuetypes.fields`,
+    method: 'GET',
+    auth: {
+      user: form.username,
+      pass: form.password,
+      sendImmediately: true
+    }
+  };
+
+  const promise = createTasksRequest(null, overwriteDefault);
+  promise.then((matchingIssueFields) => {
+    const possibleMatches = matchingIssueFields.projects[0].issuetypes;
+    const matchingField = {};
+    for (let i = 0, j = possibleMatches.length; i < j; i += 1) {
+      if (possibleMatches[i].name === form.issuetype) {
+        matchingField[possibleMatches[i].id] = possibleMatches[i].fields;
+      }
+    }
+    return cb(matchingField);
+  });
+};
+
 
 /* This method is used to generate tasks for the start of a sprint */
 exports.createTask = (boards, stories, form, cb) => {

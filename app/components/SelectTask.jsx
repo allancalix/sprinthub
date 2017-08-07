@@ -10,15 +10,17 @@ type taskType = {
 
 type Props = {
   tasks: Array<taskType>,
-  onChange: () => void
+  onChange: () => void,
+  jiraSubmit: () => void,
+  fetchOptions: () => void,
 };
 
-const SelectTask = ({ tasks, onChange, fetchOptions, jiraSubmit }: Props) => (
+const SelectTask = ({ tasks, onChange, jiraSubmit, fetchOptions }: Props) => (
   <div>
     <p>Please select a task type for stories</p>
     <select name="issuetype" onChange={onChange}>
       {tasks.map(task =>
-        <option key={task.id} value={task.id}>{task.name}</option>
+        <option key={task.id} value={task.name}>{task.name}</option>
       )}
     </select>
     <TaskForm optionalFields={fetchOptions()} onChange={onChange} /><br />
