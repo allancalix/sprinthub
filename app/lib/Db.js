@@ -50,7 +50,7 @@ class Db {
       .get('boards')
       .find({boardId: boardId})
       .get('trelloLists')
-      .remove({trelloId: id})
+      .remove({ trelloId: id })
       .write()
       .then(() =>{
         if(_.isEmpty(db.get('boards').find({boardId: boardId}).get('trelloLists').value())) {

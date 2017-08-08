@@ -56,6 +56,7 @@ const createTasksRequest = (payload, overwriteDefault = {}) => {
   options = Object.assign(options, overwriteDefault);
   return new Promise((resolve, reject) => {
     request(options, (error, res, body) => {
+      console.log(body);
       res.statusCode === 200 || res.statusCode === 201 ? resolve(JSON.parse(body)) : resolve({ error: body })
     });
   });

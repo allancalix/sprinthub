@@ -117,7 +117,7 @@ class JiraForm extends Component<void, Props, State> {
     switch (entry.key) {
       case 'components':
         appendEntry = (toAdd.hasOwnProperty(entry.key))
-          ? [...this.state.toAdd[entry.key], {component: entry.value}] : [{component: entry.value}];
+          ? [...this.state.toAdd[entry.key], { name: entry.value }] : [{ name: entry.value }];
         toAdd[entry.key] = appendEntry;
         break;
       default:
