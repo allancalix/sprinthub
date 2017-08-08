@@ -1,6 +1,7 @@
 const low = require('lowdb');
+const os = require('os');
 const _ = require('lodash');
-const db = low('./data/db.json', {storage: require('lowdb/lib/storages/file-async')});
+const db = low(os.homedir() + '/db.json', {storage: require('lowdb/lib/storages/file-async')});
 
 class Db {
   init() {

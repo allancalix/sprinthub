@@ -131,8 +131,8 @@ class JiraForm extends Component<void, Props, State> {
 
   parseOptionalFields = () => {
     const fields = this.props.jiraForm.optionsMap[this.state.matchingForm];
-    let optionalFields = forOwn(fields, (value) =>
-       Object.assign({}, {key: Object.keys(value)[0]}, value)
+    let optionalFields = forOwn(fields, value =>
+      Object.assign({}, value, { key: Object.keys(value) })
     );
     optionalFields = filter(optionalFields, field => {
       let isExcluded = false;
