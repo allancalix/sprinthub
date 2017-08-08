@@ -1,7 +1,7 @@
 // @flow
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { forOwn, filter } from 'lodash';
+import { forOwn, forEach, filter } from 'lodash';
 import JiraLogin from './JiraLogin';
 import SelectTask from './SelectTask';
 
@@ -131,8 +131,8 @@ class JiraForm extends Component<void, Props, State> {
 
   parseOptionalFields = () => {
     const fields = this.props.jiraForm.optionsMap[this.state.matchingForm];
-    let optionalFields = forOwn(fields, value =>
-      Object.assign({}, value, { key: Object.keys(value) })
+    let optionalFields = forEach(fields, (value, key) =>
+      Object.assign(value, { key })
     );
     optionalFields = filter(optionalFields, field => {
       let isExcluded = false;
