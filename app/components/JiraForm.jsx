@@ -131,12 +131,9 @@ class JiraForm extends Component<void, Props, State> {
 
   parseOptionalFields = () => {
     const fields = this.props.jiraForm.optionsMap[this.state.matchingForm];
-    let optionalFields = [];
-    forOwn(fields, (value) => {
-      if (!value.required) {
-        optionalFields = [...optionalFields, value];
-      }
-    });
+    let optionalFields = forOwn(fields, (value) =>
+       Object.assign({}, {key: Object.keys(value)[0]}, value)
+    );
     optionalFields = filter(optionalFields, field => {
       let isExcluded = false;
       for (let i = 0, j = this.state.exclude.length; i < j; i += 1) {
@@ -148,6 +145,7 @@ class JiraForm extends Component<void, Props, State> {
         return field;
       }
     });
+    console.log(optionalFields);
     return optionalFields;
   }
 
