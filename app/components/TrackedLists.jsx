@@ -26,7 +26,7 @@ const TrackedLists = ({
           <ul>
             <h3>{list.name}</h3>
             <button value={`${boardId} ${list.trelloId}`} onClick={toRemove}>Remove</button>
-            <button value={`${list.trelloId}`} onClick={exportList}>export</button>
+            <button value={`${list.trelloId}`} onClick={exportList}>Export</button>
             <CardList
               id={list.trelloId}
               cards={cards}

@@ -4,48 +4,48 @@ import TrackedLists from './TrackedLists';
 import styles from './css/BoardList.css';
 
 type Props = {
-    removeTrelloList: () => void,
-    mapCards: () => void,
-    lists: Object,
-    boards: Array<mixed>
-  }
+  removeTrelloList: () => void,
+  mapCards: () => void,
+  lists: Object,
+  boards: Array<mixed>
+};
 
-class BoardList extends Component<void, Props, void>{
-  constructor(props) {
+class BoardList extends Component<void, Props, void> {
+  constructor(props: Props) {
     super(props);
     this.state = {
       boards: [...this.props.boards],
       lists: Object.assign({}, this.props.lists)
-    }
+    };
 
     this.removeList = this.removeList.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
-    if(this.props.boards !== nextProps.boards) {
-      this.setState({boards: nextProps.boards});
+    if (this.props.boards !== nextProps.boards) {
+      this.setState({ boards: nextProps.boards });
       let listArray = [];
       nextProps.boards.map(board => {
         listArray = [
-          ...listArray, 
-          ...board.trelloLists.map(trelloList => 
+          ...listArray,
+          ...board.trelloLists.map(trelloList =>
             trelloList.trelloId)
-        ]
+        ];
       });
-      this.props.mapCards(listArray); 
+      this.props.mapCards(listArray);
     }
   }
 
-  removeList(event) {
+  removeList(event: { preventDefault: () => void, target: {value: string} }) {
     event.preventDefault();
-    let list = event.target.value.split(' ');
+    const list = event.target.value.split(' ');
     this.props.removeTrelloList(list[0], list[1]);
   }
 
-  render() { 
+  render() {
     return (
-      <div>
-        {this.state.boards.map(board => 
+      <div className={styles.boardList}>
+        {this.state.boards.map(board => (
           <ul className={styles.boardList} key={board.boardId}>
             <h3>{board.boardName}</h3><span>{board.boardId}</span>
             <TrackedLists
@@ -57,7 +57,7 @@ class BoardList extends Component<void, Props, void>{
               selectedStory={this.props.selectedStory}
               selectActiveStory={this.props.selectActiveStory} />
           </ul>
-        )}
+        ))}
       </div>
     );
   }
