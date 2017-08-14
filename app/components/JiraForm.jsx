@@ -1,7 +1,8 @@
 // @flow
 import React, { Component } from 'react';
+import { Grid, Menu } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
-import { forOwn, forEach, filter } from 'lodash';
+import { forOwn, forEach, filter, has } from 'lodash';
 import JiraLogin from './JiraLogin';
 import SelectTask from './SelectTask';
 
@@ -43,7 +44,8 @@ class JiraForm extends Component<void, Props, State> {
     errors: {
       username: '',
       password: ''
-    }
+    },
+    pendingLogin: false
   }
 
   componentWillReceiveProps(nextProps: Object) {
@@ -51,11 +53,13 @@ class JiraForm extends Component<void, Props, State> {
       const nextState = Object.assign({},
         this.state.form,
         { form: {
-          username: nextProps.jiraForm.username,
-          password: nextProps.jiraForm.password,
-          domain: nextProps.jiraForm.domain,
-          project: nextProps.jiraForm.project
-        } }
+            username: nextProps.jiraForm.username,
+            password: nextProps.jiraForm.password,
+            domain: nextProps.jiraForm.domain,
+            project: nextProps.jiraForm.project
+          },
+          pendingLogin: false
+        }
       );
       this.setState({ nextState });
     }
@@ -64,22 +68,25 @@ class JiraForm extends Component<void, Props, State> {
   updateField = (event: { target: { name: string, value: string } }) => {
     const field = event.target.name;
     const form = this.state.form;
-    form[field] = event.target.value;
+    form[field] = field !== 'project'
+      ? event.target.value : event.target.value.toUpperCase();
     return this.setState({ form });
   }
 
-  selectIssueType = (event: { target: { name: string, value: string } }) => {
-    const task = filter(this.props.jiraForm.tasks, { name: event.target.value });
-    const field = event.target.name;
+  selectIssueType = (event: { preventDefault: () => void }, data: Object) => {
+    event.preventDefault();
+    const task = filter(this.props.jiraForm.tasks, { name: data.value });
+    const field = data.name;
     const form = this.state.form;
-    form[field] = event.target.value;
-    if (this.props.jiraForm.optionsMap.hasOwnProperty(task[0].id)) {
+    form[field] = data.value;
+    if (has(this.props.jiraForm.optionsMap, task[0].id)) {
       return this.setState({
         form,
         matchingForm: task[0].id
       });
     }
-    this.setState({ form, matchingForm: task[0].id }, () => this.props.getFields(this.state.form, task[0].id));
+    return this.setState({ form, matchingForm: task[0].id }, () =>
+      this.props.getFields(this.state.form, task[0].id));
   }
 
   createJiraBoard = (event: {preventDefault: () => void}) => {
@@ -108,6 +115,7 @@ class JiraForm extends Component<void, Props, State> {
         }
       });
     }
+    this.setState({ pendingLogin: true });
     this.props.getOptions(this.state.form);
   }
 
@@ -145,42 +153,50 @@ class JiraForm extends Component<void, Props, State> {
         return field;
       }
     });
-    console.log(optionalFields);
     return optionalFields;
   }
 
   render() {
     return (
-      <div>
-        <h1 onClick={this.test}>JIRA FORM</h1>
-        <Link to="/">Back Home</Link>
-        {!this.props.jiraForm.stateSet ?
-          <JiraLogin
-            form={this.state.form}
-            onChange={this.updateField}
-            onSubmit={this.getFieldOptions}
-            errors={this.state.errors}
-          />
-          : <div>
-            <h3>Domain: {this.props.jiraForm.domain}</h3>
-            <p> User: {this.props.jiraForm.username}</p>
-            <p> Project: {this.props.jiraForm.project}</p>
-            <p> Issuetype: {this.state.form.issuetype}</p>
-          </div>
-        }
-        {this.props.jiraForm.stateSet &&
-          <div>
-            <SelectTask
-              onChange={this.selectIssueType}
-              tasks={this.props.jiraForm.tasks}
-              selected={this.state.form.issuetype}
-              jiraSubmit={this.createJiraBoard}
-              fetchOptions={this.parseOptionalFields}
-              addField={this.pushNewField}
+      <Grid divided="vertically" padded>
+        <Grid.Row columns={1}>
+          <Menu fixed="top" size="large" fluid>
+            <Menu.Item as={Link} to="/">Sprint Hub</Menu.Item>
+            <Menu.Menu position="right">
+            </Menu.Menu>
+          </Menu>
+        </Grid.Row>
+        <Grid.Row />
+        <Grid.Row centered>
+          {!this.props.jiraForm.stateSet ?
+            <JiraLogin
+              form={this.state.form}
+              onChange={this.updateField}
+              onSubmit={this.getFieldOptions}
+              errors={this.state.errors}
+              pendingLogin={this.state.pendingLogin}
             />
-          </div>
-        }
-      </div>
+            : <div>
+              <h3>Connected: {this.props.jiraForm.domain}</h3>
+              <p> User: {this.props.jiraForm.username}</p>
+              <p> Project: {this.props.jiraForm.project}</p>
+              <p> Issuetype: {this.state.form.issuetype}</p>
+            </div>
+          }
+        </Grid.Row>
+        <Grid.Row>
+          {this.props.jiraForm.stateSet &&
+              <SelectTask
+                onChange={this.selectIssueType}
+                tasks={this.props.jiraForm.tasks}
+                selected={this.state.form.issuetype}
+                jiraSubmit={this.createJiraBoard}
+                fetchOptions={this.parseOptionalFields}
+                addField={this.pushNewField}
+              />
+          }
+        </Grid.Row>
+      </Grid>
     );
   }
 }

@@ -1,25 +1,49 @@
 // @flow
 import React from 'react';
+import { List, Button } from 'semantic-ui-react';
 import styles from './css/CardList.css';
 
 type Props = {
   selectActiveStory: () => void,
-  id: string,
+  toRemove: () => void,
+  exportList: () => void,
+  boardId: string,
   cards: Object,
-  selectedStory: Object
+  selectedStory: Object,
+  list: Object
 };
 
-const CardList = ({ id, cards, selectedStory, selectActiveStory }: Props) => (
-  <div>
-    {cards[id].map(cardList =>
-      (<li
-        onClick={selectActiveStory}
+const CardList = ({
+  cards,
+  selectedStory,
+  selectActiveStory,
+  list,
+  toRemove,
+  exportList,
+  boardId }: Props
+) => (
+  <List divided selection celled animated verticalAlign="middle">
+    <List.Header className={styles.sideBarHeader} icon="remove">
+      <span>{list.name}</span>
+      <Button.Group size="mini" compact basic>
+        <Button onClick={() => exportList(list.trelloId)} icon="save" />
+        <Button onClick={() => toRemove(boardId, list.trelloId)} icon="remove" />
+      </Button.Group>
+    </List.Header>
+    {cards[list.trelloId].map(cardList =>
+      (<List.Item
+        active={cardList.id === selectedStory.id}
+        onClick={() => selectActiveStory(list.trelloId, cardList.id)}
         key={cardList.id}
-        id={`${id} ${cardList.id}`}
-        className={selectedStory.id === cardList.id ? styles.active : styles.inactive}
-      >{cardList.name}</li>)
+        className={styles.sideBarItem}
+      >
+        <List.Content floated="right">
+          <List.Icon name="chevron right" />
+        </List.Content>
+        <List.Content>{cardList.name}</List.Content>
+      </List.Item>)
     )}
-  </div>
+  </List>
 );
 
 export default CardList;

@@ -1,12 +1,13 @@
 // @flow
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { ipcRenderer } from 'electron';
-import styles from './css/Home.css';
+import { ipcRenderer, shell } from 'electron';
+import { Menu, Grid, Button, Loader } from 'semantic-ui-react';
 import AddListForm from './AddListModal';
 import BoardList from './BoardList';
 import CheckListPanel from './CheckListPanel';
 import { exportRawData, authenticateTrello } from '../lib/Sprint';
+import styles from './css/Home.css';
 
 const globalVar = () => {};
 
@@ -32,16 +33,6 @@ type State = {
 };
 
 class Home extends Component<void, Props, State> {
-  constructor(props) {
-    super(props);
-
-    this.toggleAddList = this.toggleAddList.bind(this);
-    this.exportList = this.exportList.bind(this);
-    this.updateBoardsState = this.updateBoardsState.bind(this);
-    this.trackList = this.trackList.bind(this);
-    this.selectActiveStory = this.selectActiveStory.bind(this);
-  }
-
   state = {
     boards: this.props.boards,
     board: {
@@ -52,7 +43,9 @@ class Home extends Component<void, Props, State> {
     errors: {
       addList: ''
     },
-    showAddList: false
+    showAddList: false,
+    showLoader: false,
+    sh: true
   }
 
   componentWillMount() {
@@ -71,76 +64,90 @@ class Home extends Component<void, Props, State> {
     }
   }
 
-  login(event: {preventDefault: () => void}) {
+  openExternalLink = url => {
+    shell.openExternal(url);
+  }
+
+  login = (event: {preventDefault: () => void}) => {
     event.preventDefault();
     ipcRenderer.send('trello-login', authenticateTrello());
   }
 
-  updateBoardsState(event: { target: { name: string, value: string } }) {
+  updateBoardsState = (event: { target: { name: string, value: string } }) => {
     const field = event.target.name;
     const boards = this.state.board;
     boards[field] = event.target.value;
     return this.setState({ board: boards });
   }
 
-  selectActiveStory(event: {target: {id: string } }) {
-    const activeStory = event.target.id.split(' ');
-    this.props.lists[activeStory[0]].map(checklist => {
-      if (checklist.id === activeStory[1]) {
+  selectActiveStory = (trelloId: string, cardId: string) => {
+    this.props.lists[trelloId].map(checklist => {
+      if (checklist.id === cardId) {
         return this.setState({ selectedStory: checklist });
       }
+      return false;
     });
   }
 
-  toggleAddList(event: {preventDefault: () => void}) {
-    event.preventDefault();
-    this.setState({ showAddList: !this.state.showAddList, board: { boardId: '', listName: '' } });
-  }
-
-  exportList(event: { target: {value: string} }) {
-    const list = this.props.lists[event.target.value];
+  exportList = (trelloId: string) => {
+    const list = this.props.lists[trelloId];
     ipcRenderer.send('open-dialog', list);
   }
 
-  trackList(event: {preventDefault: () => void}) {
+  trackList = (event: {preventDefault: () => void}) => {
     event.preventDefault();
     this.props.addTrelloList(this.state.board.boardId, this.state.board.listName);
-    this.setState({ showAddList: !this.state.showAddList });
   }
 
   render() {
     return (
-      <div className={styles.header}>
-        <h2>Sprint Hub</h2>
-        <nav className={styles.nav}>
-          <Link to="/jira">Make Jira Board</Link>
-          {!this.props.login && <button onClick={this.login}>Login</button>}
-          <button onClick={this.toggleAddList}>Add List</button>
-        </nav>
-        <div className={styles.container} data-tid="container">
-          <BoardList
-            boards={this.props.boards}
-            lists={this.props.lists}
-            mapCards={this.props.mapCards}
-            removeTrelloList={this.props.removeTrelloList}
-            selectedStory={this.state.selectedStory}
-            selectActiveStory={this.selectActiveStory}
-            exportList={this.exportList}
-          />
-          { this.state.showAddList &&
-            <AddListForm
-              boards={this.state.board}
-              onChange={this.updateBoardsState}
-              onSubmit={this.trackList}
-              toggle={this.toggleAddList}
-              errors={this.state.errors}
+      <Grid divided="vertically">
+        <Grid.Row columns={1}>
+          <Grid.Column>
+            <Menu fixed="top" size="large" fluid>
+              <Menu.Item as="a" active>Sprint Hub</Menu.Item>
+              <Menu.Menu position="right">
+                <Menu.Item as={Link} to="/jira">Make Jira Board</Menu.Item>
+                {!this.props.login &&
+                  <Menu.Item className="item">
+                    <Button secondary onClick={this.login}>Login</Button>
+                  </Menu.Item>
+                }
+                <Menu.Item>
+                  <AddListForm
+                    boards={this.state.board}
+                    onChange={this.updateBoardsState}
+                    onSubmit={this.trackList}
+                    errors={this.state.errors}
+                  />
+                </Menu.Item>
+              </Menu.Menu>
+            </Menu>
+          </Grid.Column>
+        </Grid.Row>
+        <Loader inverted active={this.state.showLoader} />
+        <Grid.Row columns={2} stretched>
+          <Grid.Column floated="left" width={6} className={styles.sidebar}>
+            <BoardList
+              boards={this.props.boards}
+              lists={this.props.lists}
+              mapCards={this.props.mapCards}
+              removeTrelloList={this.props.removeTrelloList}
+              selectedStory={this.state.selectedStory}
+              selectActiveStory={this.selectActiveStory}
+              exportList={this.exportList}
             />
-          }
-          {Object.keys(this.state.selectedStory).length !== 0 &&
-            <CheckListPanel checklists={this.state.selectedStory} />
-          }
-        </div>
-      </div>
+          </Grid.Column>
+          <Grid.Column width={10}>
+            {Object.keys(this.state.selectedStory).length !== 0 &&
+              <CheckListPanel
+                checklists={this.state.selectedStory}
+                open={this.openExternalLink}
+              />
+            }
+          </Grid.Column>
+        </Grid.Row>
+      </Grid>
     );
   }
 }

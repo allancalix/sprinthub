@@ -1,5 +1,6 @@
 // @flow
 import React, { Component } from 'react';
+import { Grid, Dropdown } from 'semantic-ui-react';
 import TaskForm from './TaskForm';
 
 type taskType = {
@@ -42,21 +43,29 @@ class SelectTask extends Component<void, Props, void> {
 
   render() {
     return (
-      <div>
-        <select name="issuetype" value={this.props.selected} onChange={this.props.onChange}>
-          <option value={''} disabled> -- Select Task Type -- </option>
-          {this.props.tasks.map(task =>
-            <option key={task.id} value={task.name}>{task.name}</option>
-          )}
-        </select>
-        <TaskForm
-          optionalFields={this.props.fetchOptions()}
-          onChange={this.trackTaskForm}
-          taskList={this.state.itemsToAdd}
-          onSubmit={this.addEntry}
-        /><br />
-        <button onClick={this.props.jiraSubmit}>Create Board</button>
-      </div>
+      <Grid padded>
+        <Grid.Row>
+          <Dropdown
+            placeholder="Select Task Type"
+            selection
+            fluid
+            name="issuetype"
+            value={this.props.selected}
+            onChange={this.props.onChange}
+            options={this.props.tasks.map(task => Object.assign({}, { text: task.name, value: task.name, image: task.iconUrl, id: task.key }))}
+          />
+        </Grid.Row>
+        <Grid.Row />
+        <Grid.Row>
+          <TaskForm
+            optionalFields={this.props.fetchOptions()}
+            onChange={this.trackTaskForm}
+            taskList={this.state.itemsToAdd}
+            onSubmit={this.addEntry}
+          /><br />
+          <button onClick={this.props.jiraSubmit}>Create Board</button>
+        </Grid.Row>
+      </Grid>
     );
   }
 }

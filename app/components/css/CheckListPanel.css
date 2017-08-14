@@ -1,14 +1,19 @@
-.rightPanel {
-  display: inline-block;
-  width: 600px;
-  position: relative;
-  margin-left: 75px;
-  background: rgba(0, 0, 0, .1);
-  max-height: 650px;
+.checkListView {
+  padding: 2em;
   overflow-y: auto;
-  z-index: 0;
 }
 
-.rightPanel ul {
-  padding-left: 0px;
+.checkListView h1 {
+  font-size: 3.2em;
+  text-align: center;
+}
+
+.checkListView h2 {
+  font-size: 2.4em;
+  text-align: center;
+}
+
+.criteria {
+  line-height: 100%;
+  font-size: 1.6em;
 }

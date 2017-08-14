@@ -1,3 +1,13 @@
-.active {
-  color: green;
+.sideBarHeader {
+  margin-bottom: 15px;
+}
+
+.sideBarHeader span{
+  font-size: 2em;
+  margin-right: 50px;
+  line-height: 27px;
+}
+
+.sideBarItem {
+  font-size: 1.6em;
 }

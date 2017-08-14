@@ -56,8 +56,14 @@ const createTasksRequest = (payload, overwriteDefault = {}) => {
   options = Object.assign(options, overwriteDefault);
   return new Promise((resolve, reject) => {
     request(options, (error, res, body) => {
-      console.log(body);
-      res.statusCode === 200 || res.statusCode === 201 ? resolve(JSON.parse(body)) : resolve({ error: body })
+      if (error) {
+        reject(error);
+      } else if (res.statusCode === 401) {
+        reject({ fields: ['password', 'username'], message: 'Invalid credentials.' });
+      } else {
+        res.statusCode === 200 || res.statusCode === 201
+          ? resolve(JSON.parse(body)) : resolve({ error: body });
+      }
     });
   });
 };
@@ -170,7 +176,10 @@ exports.fetchIssueFields = (form, cb) => {
   };
 
   const promise = createTasksRequest(null, overwriteDefault);
-  promise.then((data) => {
+  promise.then(data => {
+    if (data.projects.length === 0) {
+      return cb({ fields: ['project'], message: 'No items found in specified project.' });
+    }
     const availableFields = {
       subtasks: [],
       tasks: [],
@@ -183,8 +192,8 @@ exports.fetchIssueFields = (form, cb) => {
         { subtasks: [...availableFields.subtasks, { id, name, iconUrl }] }
         : { tasks: [...availableFields.tasks, { id, name, iconUrl }] });
     }
-    cb(availableFields);
-  });
+    return cb(false, availableFields);
+  }).catch(error => cb(error));
 };
 
 exports.fetchExtendedFields = (form, id, cb) => {

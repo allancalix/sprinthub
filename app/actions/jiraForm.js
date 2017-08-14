@@ -7,20 +7,29 @@ export function getOptionsSuccess(options) {
   return { type: types.GET_OPTIONS_SUCCESS, options };
 }
 
+// export function getOptionsFailure(errors) {
+//   return { type: types.GET_OPTIONS_FAILURE, errors };
+// }
+
 export function getFieldsSuccess(fields) {
   return { type: types.GET_FIELDS_SUCCESS, fields };
 }
 
 export function getOptions({ domain, project, username, password }) {
   return (dispatch: (action: actionType) => void) => (
-    Jira.fetchIssueFields({ domain, project, username, password }, data =>
-      dispatch(getOptionsSuccess(Object.assign(
-        {},
-        data,
-        { stateSet: true },
-        { domain, project, username, password })
-      ))
-    )
+    Jira.fetchIssueFields({ domain, project, username, password }, (error, data) => {
+      if (error) {
+        const errors = error.fields.map(errorField => Object.assign({}, { field: errorField, message: error.message }));
+        console.log(errors);
+      } else {
+        dispatch(getOptionsSuccess(Object.assign(
+          {},
+          data,
+          { stateSet: true },
+          { domain, project, username, password })
+        ));
+      }
+    })
   );
 }
 

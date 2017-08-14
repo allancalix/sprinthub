@@ -1,7 +1,6 @@
 // @flow
 import React from 'react';
-import TextInput from './common/TextInput';
-import styles from './css/AddListModal.css';
+import { Grid, Form, Button, Segment, Message } from 'semantic-ui-react';
 
 type Props = {
   form: {
@@ -15,43 +14,49 @@ type Props = {
   errors: Object
 };
 
-const JiraLogin = ({ form, onChange, onSubmit, errors }: Props) => (
-  <form onSubmit={onSubmit} className={styles.form}>
-    <h3>Credentials</h3>
-    <TextInput
-      label={'Domain:'}
-      name={'domain'}
-      placeholder={'domain.jira.com'}
-      value={form.domain}
-      onChange={onChange}
-      error={''}
-    />
-    <TextInput
-      label={'Project:'}
-      name={'project'}
-      placeholder={'EXAM'}
-      value={form.project}
-      onChange={onChange}
-      error={''}
-    /><br />
-    <TextInput
-      name="username"
-      label="Username"
-      placeholder="Username"
-      value={form.username}
-      onChange={onChange}
-      error={errors.username}
-    />
-    <TextInput
-      name="password"
-      label="Password"
-      placeholder="Password"
-      value={form.password}
-      onChange={onChange}
-      error={errors.password}
-    />
-    <input type="submit" name="Submit" />
-  </form>
+const JiraLogin = ({ form, onChange, onSubmit, errors, pendingLogin }: Props) => (
+  <Grid.Column style={{ maxWidth: 450 }}>
+    <Segment stacked>
+      <Form error onSubmit={onSubmit} className={'large'} style={{ maxWidth: 450 }} loading={pendingLogin}>
+        <Form.Input
+          label="Domain"
+          type="text"
+          name="domain"
+          placeholder="domain.jira.com"
+          onChange={onChange}
+          value={form.domain}
+          as={Form.Field}
+          error={false}
+        />
+        {false && <Message error={false} header="Invalid Domain" content="There was an error" />}
+        <Form.Input
+          type="text"
+          label={'Project Key'}
+          name={'project'}
+          placeholder={'EXAM'}
+          value={form.project}
+          onChange={onChange}
+        />
+        <Form.Input
+          type="text"
+          name="username"
+          label="Username"
+          placeholder="Username"
+          value={form.username}
+          onChange={onChange}
+        />
+        <Form.Input
+          type="password"
+          name="password"
+          label="Password"
+          placeholder="Password"
+          value={form.password}
+          onChange={onChange}
+        />
+        <Button primary fluid size="large">Connect</Button>
+      </Form>
+    </Segment>
+  </Grid.Column>
 );
 
 export default JiraLogin;

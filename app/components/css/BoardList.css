@@ -1,18 +1,15 @@
-.boardList {
-  background-color: #eee;
-  color: #444;
-  cursor: pointer;
-  padding: 18px;
-  max-height: 650px;
-  width: 600px;
-  text-align: left;
-  border: none;
-  outline: none;
-  transition: 0.4s;
-  overflow-x: hidden;
+.boardPanel {
+  background: white;
   overflow-y: auto;
 }
 
-.boardlist ul {
-  padding: 0px;
+.boardInfo h2{
+  font-size: 2em;
+  padding: 5px;
+}
+
+.boardInfo span {
+  padding-left: 10px;
+  font-style: italic;
+  font-weight: normal;
 }

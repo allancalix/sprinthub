@@ -1,5 +1,6 @@
 // @flow
 import React, { Component } from 'react';
+import { List, Confirm } from 'semantic-ui-react';
 import TrackedLists from './TrackedLists';
 import styles from './css/BoardList.css';
 
@@ -15,10 +16,10 @@ class BoardList extends Component<void, Props, void> {
     super(props);
     this.state = {
       boards: [...this.props.boards],
-      lists: Object.assign({}, this.props.lists)
+      lists: Object.assign({}, this.props.lists),
+      showConfirm: false,
+      pendingItems: {}
     };
-
-    this.removeList = this.removeList.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -36,27 +37,41 @@ class BoardList extends Component<void, Props, void> {
     }
   }
 
-  removeList(event: { preventDefault: () => void, target: {value: string} }) {
-    event.preventDefault();
-    const list = event.target.value.split(' ');
-    this.props.removeTrelloList(list[0], list[1]);
+  confirmRemoveList = (boardId, listId) =>
+    this.setState({ showConfirm: true, pendingItems: { boardId, listId } })
+
+  clearConfirm = () =>
+    this.setState({ showConfirm: false, pendingItems: {} })
+
+  removeList = () => {
+    this.props.removeTrelloList(this.state.pendingItems);
+    return this.clearConfirm();
   }
 
   render() {
     return (
-      <div className={styles.boardList}>
+      <div className={styles.boardPanel}>
+        <Confirm
+          open={this.state.showConfirm}
+          content="Are you sure you want to remove this item?"
+          onCancel={this.clearConfirm}
+          onConfirm={this.removeList}
+        />
         {this.state.boards.map(board => (
-          <ul className={styles.boardList} key={board.boardId}>
-            <h3>{board.boardName}</h3><span>{board.boardId}</span>
+          <List key={board.boardId}>
+            <List.Header className={styles.boardInfo}>
+              <h2>{board.boardName}<span>{board.boardId}</span></h2>
+            </List.Header>
             <TrackedLists
               boardId={board.boardId}
               lists={board.trelloLists}
               cards={this.props.lists}
-              toRemove={this.removeList}
+              toRemove={this.confirmRemoveList}
               exportList={this.props.exportList}
               selectedStory={this.props.selectedStory}
-              selectActiveStory={this.props.selectActiveStory} />
-          </ul>
+              selectActiveStory={this.props.selectActiveStory}
+            />
+          </List>
         ))}
       </div>
     );

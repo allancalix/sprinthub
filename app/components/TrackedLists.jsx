@@ -1,5 +1,6 @@
 // @flow
 import React from 'react';
+import { List } from 'semantic-ui-react';
 import CardList from './CardList';
 
 type Props = {
@@ -22,19 +23,18 @@ const TrackedLists = ({
   exportList }: Props) => (
     <div>
       {lists.map(list =>
-        (<li key={list.trelloId}>
-          <ul>
-            <h3>{list.name}</h3>
-            <button value={`${boardId} ${list.trelloId}`} onClick={toRemove}>Remove</button>
-            <button value={`${list.trelloId}`} onClick={exportList}>Export</button>
-            <CardList
-              id={list.trelloId}
-              cards={cards}
-              selectedStory={selectedStory}
-              selectActiveStory={selectActiveStory}
-            />
-          </ul>
-        </li>)
+        (<List.Item key={list.trelloId}>
+          <CardList
+            id={list.trelloId}
+            cards={cards}
+            selectedStory={selectedStory}
+            selectActiveStory={selectActiveStory}
+            list={list}
+            boardId={boardId}
+            exportList={exportList}
+            toRemove={toRemove}
+          />
+        </List.Item>)
       )}
     </div>
   );

@@ -1,40 +1,37 @@
 // @flow
 import React from 'react';
-import TextInput from './common/TextInput';
-import styles from './css/AddListModal.css';
+import { Header, Form, Modal, Button } from 'semantic-ui-react';
 
 type Props = {
   onChange: () => void,
   onSubmit: () => void,
-  toggle: () => void,
   boards: Object,
   errors: Object
 };
 
-const AddListForm = ({ boards, onChange, onSubmit, toggle, errors }: Props) => (
-  <div className={styles.modalMask}>
-    <form onSubmit={onSubmit} className={styles.form}>
-      <h3>Add A List</h3>
-      <button onClick={toggle}>Close</button>
-      <TextInput
-        name="boardId"
-        label="Board ID: "
-        placeholder="Board ID"
-        value={boards.boardId}
-        onChange={onChange}
-        error={errors.addList}
-      />
-      <TextInput
-        name="listName"
-        label="List Name: "
-        placeholder="EX: Sprint 3"
-        value={boards.listName}
-        onChange={onChange}
-        error={errors.addList}
-      />
-      <input type="submit" name="Submit" />
-    </form>
-  </div>
+const AddListForm = ({ boards, onChange, onSubmit, errors }: Props) => (
+  <Modal trigger={<Button primary>Add List</Button>} closeIcon size="mini">
+    <Header content="Add A List" />
+    <Modal.Content>
+      <Form onSubmit={onSubmit}>
+        <Form.Input
+          name="boardId"
+          label="Board ID"
+          placeholder="Board ID"
+          value={boards.boardId}
+          onChange={onChange}
+        />
+        <Form.Input
+          name="listName"
+          label="List Name: "
+          placeholder="EX: Sprint 3"
+          value={boards.listName}
+          onChange={onChange}
+        />
+        <Button primary fluid size="small">Add</Button>
+      </Form>
+    </Modal.Content>
+  </Modal>
 );
 
 export default AddListForm;

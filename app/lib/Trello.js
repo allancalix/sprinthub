@@ -66,7 +66,7 @@ class Trello {
   }
 
   queryCards(listArray) {
-    const batchUrl = listArray.map(listId => `/lists/${listId}/cards/open?fields=name%26fields=id%26fields=labels%26checklists=all%26`);
+    const batchUrl = listArray.map(listId => `/lists/${listId}/cards/open?fields=name%26fields=id%26fields=labels%26checklists=all%26attachments=true%26attachment_fields=url%26attachment_fields=previews%26attachment_fields=name`);
     const paramString = `/1/batch/?urls=${batchUrl}&key=${this.key}&token=${this.token}`;
     const promise = this.sendRequest({}, paramString, data =>
       new Promise((resolve) => resolve(data))
@@ -81,7 +81,7 @@ class Trello {
   }
 
   mapBoardName(id, cb) {
-    const params = { 
+    const params = {
       fields: 'name, id, shorturl',
       key: this.key,
       token: this.token

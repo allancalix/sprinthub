@@ -40,7 +40,7 @@ export function addTrelloList(boardId, listName) {
   };
 }
 
-export function removeTrelloList(boardId, listId) {
+export function removeTrelloList({ boardId, listId }) {
   return (dispatch: (action: actionType) => void, getState) => {
     const boardState = getState();
     return Sprint.removeTrelloList(boardId, listId).then(message => {
