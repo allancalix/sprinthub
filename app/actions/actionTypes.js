@@ -1,7 +1,7 @@
 // @flow
-type actionType = {
+export type actionType = {
   +type: string
-}
+};
 
 // login.js
 // export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
@@ -20,3 +20,5 @@ export const MAP_CARDS_SUCCESS = 'MAP_CARDS_SUCCESS';
 // jiraForm.js
 export const GET_OPTIONS_SUCCESS = 'GET_OPTIONS_SUCCESS';
 export const GET_FIELDS_SUCCESS = 'GET_FIELDS_SUCCESS';
+export const GET_OPTIONS_FAILURE = 'GET_OPTIONS_FAILURE';
+export const LOGIN_PENDING = 'LOGIN_PENDING';

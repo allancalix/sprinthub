@@ -1,6 +1,6 @@
 // @flow
 import React from 'react';
-import { Header, Form, Modal, Button } from 'semantic-ui-react';
+import { Form, Modal, Button } from 'semantic-ui-react';
 
 type Props = {
   onChange: () => void,
@@ -9,11 +9,11 @@ type Props = {
   errors: Object
 };
 
-const AddListForm = ({ boards, onChange, onSubmit, errors }: Props) => (
-  <Modal trigger={<Button primary>Add List</Button>} closeIcon size="mini">
-    <Header content="Add A List" />
+const AddListForm = ({ boards, onChange, onSubmit, errors, pendingResponse }: Props) => (
+  <Modal trigger={<Button secondary>Add List</Button>} closeIcon size="mini">
+    <Modal.Header content="Add A List" />
     <Modal.Content>
-      <Form onSubmit={onSubmit}>
+      <Form onSubmit={onSubmit} loading={pendingResponse}>
         <Form.Input
           name="boardId"
           label="Board ID"

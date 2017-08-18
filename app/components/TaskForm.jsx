@@ -1,7 +1,6 @@
 // @flow
 import React from 'react';
-import TextInput from './common/TextInput';
-import styles from './css/TaskForm.css';
+import { Grid, Input, Dropdown } from 'semantic-ui-react';
 
 type optionalFieldsType = {
   required: boolean,
@@ -13,25 +12,43 @@ type optionalFieldsType = {
 
 type Props = {
   optionalFields: Array<optionalFieldsType>,
+  onChange: () => void,
+  onSubmit: () => void,
+  taskList: Object
 };
 
-const TaskForm = ({ optionalFields, taskList, onChange, onSubmit }: Props) => (
-  <div>
+const mapOptions = (values = []) =>
+  values.map(value => Object.assign({}, { text: value.name, value, key: value.id }))
+
+const TaskForm = ({ optionalFields, taskList, onChange, onSubmit, selectValue }: Props) => (
+  <Grid.Row columns={3}>
     {optionalFields.map(field =>
-      field.schema.type === 'array' &&
-      <div key={field.key}>
-        <TextInput
-          label={field.name}
+      (field.schema.type === 'array' && field.schema.items === 'string') || field.schema.type === 'string'
+      ? <Grid.Column textAlign="center" verticalAlign="middle" style={{ height: '100px' }} key={field.key}>
+        <Input
+          action={{ color: 'teal', labelPosition: 'right', icon: 'add', content: 'Add', onClick: () => onSubmit(field.key) }}
           name={field.key}
-          placeholder={''}
+          placeholder={field.name}
+          fluid
           value={taskList[field.key] || ''}
           onChange={onChange}
-          error={''}
         />
-        <button value={field.key} onClick={onSubmit}>Add</button>
-      </div>
+      </Grid.Column>
+      : <Grid.Column textAlign="center" verticalAlign="middle" style={{ height: '100px' }} key={field.key}>
+        <Dropdown
+          fluid
+          multiple
+          search
+          selection
+          placeholder={field.name}
+          name={field.key}
+          onChange={selectValue}
+          options={mapOptions(field.allowedValues)}
+        />
+      </Grid.Column>
     )}
-  </div>
+  </Grid.Row>
 );
 
 export default TaskForm;
+        // <Button size="mini" secondary value={field.key} onClick={onSubmit}>Add</Button>

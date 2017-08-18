@@ -103,10 +103,10 @@ app.on('ready', async () => {
     const returnToken = token => {
       event.sender.send('return-token', token);
       trelloWindow.destroy();
-    }
+    };
 
     trelloWindow.webContents.on('will-navigate', (event, url) => {
-      let checkUrl = url.split('#');
+      const checkUrl = url.split('#');
       if (checkUrl[0] === 'https://localhost/app.html') {
         returnToken(checkUrl[1].split('=')[1]);
       } else {
@@ -116,7 +116,7 @@ app.on('ready', async () => {
 
     trelloWindow.webContents.on('did-finish-load', () => {
       if (!trelloWindow) {
-        throw new Error('"trelloWindow" is not defined');
+        throw new Error('trelloWindow is not defined');
       }
       trelloWindow.show();
       trelloWindow.focus();

@@ -2,15 +2,16 @@
 import {
   SET_STATUS,
   SET_TRELLO_TOKEN_SUCCESS,
-  SET_TRELLO_TOKEN_FAILURE } from '../actions/actionTypes';
+  SET_TRELLO_TOKEN_FAILURE,
+} from '../actions/actionTypes';
 
 export type loginStateType = {
-  +loggedIn: boolean,
-}
+  +loggedIn: boolean
+};
 
 type actionType = {
   +type: string
-}
+};
 
 export default function login(state: boolean = false, action: actionType) {
   switch (action.type) {

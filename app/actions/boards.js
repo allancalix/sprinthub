@@ -28,13 +28,17 @@ export function loadBoards() {
 
 export function addTrelloList(boardId, listName) {
   return (dispatch: (action: actionType) => void, getState) => {
-    return Sprint.trackNewList(boardId, listName, success => {
+    return Sprint.trackNewList(boardId, listName, (error, success) => {
+      if (error) {
+        console.log(error.valueOf());
+        return false;
+      }
       let newState = getState().boards.map(board => {
         board.trelloLists = board.boardId === boardId ?
           [...board.trelloLists, {name: listName, trelloId: success.id}] : board.trelloLists
         return board;
       });
-      if(success.newBoard) { dispatch(loadBoards()) }
+      if (success.newBoard) { dispatch(loadBoards()) }
       dispatch(addTrelloListSuccess(newState));
     });
   };
@@ -44,13 +48,13 @@ export function removeTrelloList({ boardId, listId }) {
   return (dispatch: (action: actionType) => void, getState) => {
     const boardState = getState();
     return Sprint.removeTrelloList(boardId, listId).then(message => {
-      let reducedList = flow(
-        find(['boardId', boardId]), 
+      const reducedList = flow(
+        find(['boardId', boardId]),
         get('trelloLists'),
-        remove({trelloId: listId})
+        remove({ trelloId: listId })
       )(boardState.boards);
       const newState = boardState.boards.map(board =>
-       board.boardId === boardId ? Object.assign(board, {trelloLists: reducedList}) : board
+       board.boardId === boardId ? Object.assign(board, { trelloLists: reducedList }) : board
       );
       message === 'removedEmptyBoard' ?
         dispatch(loadBoards()) : dispatch(removeTrelloListSuccess(newState));

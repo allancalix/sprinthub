@@ -3,27 +3,22 @@ const fs = require('fs');
 const db = require('./Db');
 
 class Sprint {
-  isTrelloTokenSet() {
-    return db.isTrelloTokenSet();
-  }
+  isTrelloTokenSet = () =>
+    db.isTrelloTokenSet()
 
-  fetchTrelloToken() {
-    return db.returnTrelloToken();
-  }
+  fetchTrelloToken = () =>
+    db.returnTrelloToken()
 
-  activateTrello(token) {
-    return db.setTrelloToken(token);
-  }
+  activateTrello = (token) =>
+    db.setTrelloToken(token)
 
-  authenticateTrello() {
+  authenticateTrello = () => {
     let Trello = new TrelloRequest(null);
     const authenticationUrl = Trello.login();
     Trello = null;
     return authenticationUrl;
   }
 
-  // Adding a new board doesn't cause "loadBoard" to fire and update the view
-  // Problem is with promise.listquery being set in the wrong closure
   trackNewList(id, name, cb) {
     let Trello = new TrelloRequest(this.fetchTrelloToken());
     const board = { id };
@@ -34,17 +29,17 @@ class Sprint {
           board.boardName = boardInfo.name;
           Trello.queryLists(board, name).then(data => {
             Trello = null;
-            cb(data);
-          });
+            cb(null, data);
+          }).catch(err => cb(err));
           resolve('success');
         });
       });
     } else {
       board.boardName = 'n/a';
-      Trello.queryLists(board, name).then(data => { 
+      Trello.queryLists(board, name).then(data => {
         Trello = null;
-        cb(data);
-      });
+        cb(null, data);
+      }).catch(err => cb(err));
     }
   }
 
@@ -73,7 +68,7 @@ class Sprint {
   }
 
   returnTrackedBoards() {
-    return new Promise((resolve, reject) => { 
+    return new Promise((resolve, reject) => {
       db.fetchBoards()
         .then((boards) => {
           resolve(boards);
@@ -82,8 +77,8 @@ class Sprint {
   }
 
   exportRawData(dir, data) {
-    let dataFile = fs.createWriteStream(`${dir}/trello_data.txt`);
-    dataFile.write(`Trello Data\n`);
+    const dataFile = fs.createWriteStream(`${dir}/trello_data.txt`);
+    dataFile.write('Trello Data\n');
     data.map(story => {
       dataFile.write(`${story.name}\n`);
     });

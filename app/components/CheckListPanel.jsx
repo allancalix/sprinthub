@@ -1,6 +1,7 @@
 // @flow
 import React from 'react';
-import { List, Modal, Image, Label, Icon, Grid } from 'semantic-ui-react';
+import { List, Container } from 'semantic-ui-react';
+import ImagePreview from './ImagePreview';
 import styles from './css/CheckListPanel.css';
 
 type Props = {
@@ -9,7 +10,7 @@ type Props = {
 };
 
 const CheckListPanel = ({ checklists, open }: Props) => (
-  <div className={styles.checkListView}>
+  <Container fluid className={styles.checkListView}>
     <h1>{checklists.name}</h1>
     <List divided relaxed>
       {checklists.checklists.map(checklist =>
@@ -25,34 +26,11 @@ const CheckListPanel = ({ checklists, open }: Props) => (
       <List.Item>
         <List.Header as="h2">Attachments</List.Header>
         <List.Content>
-          <Grid centered padded>
-            {checklists.attachments.map(item => {
-              return (
-                <Grid.Column key={item.id} verticalAlign="middle" width={4}>
-                  {item.previews.length > 0
-                    ? <Modal basic trigger={<Image fluid src={item.previews[3].url} />}>
-                      <Modal.Content>
-                        <Image src={item.url} />
-                      </Modal.Content>
-                    </Modal>
-                    : <Label
-                      key={item.id}
-                      as="a"
-                      size="small"
-                      onClick={() => open(item.url)}
-                    >
-                      <Icon name="external share" />
-                      {item.name}
-                    </Label>
-                  }
-                </Grid.Column>
-              );
-            })}
-          </Grid>
+          <ImagePreview attachments={checklists.attachments} open={open} />
         </List.Content>
       </List.Item>
     </List>
-  </div>
+  </Container>
 );
 
 export default CheckListPanel;

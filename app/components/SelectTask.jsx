@@ -1,6 +1,6 @@
 // @flow
 import React, { Component } from 'react';
-import { Grid, Dropdown } from 'semantic-ui-react';
+import { Grid, Dropdown, Container } from 'semantic-ui-react';
 import TaskForm from './TaskForm';
 
 type taskType = {
@@ -14,6 +14,7 @@ type Props = {
   onChange: () => void,
   jiraSubmit: () => void,
   fetchOptions: () => void,
+  addField: () => void
 };
 
 class SelectTask extends Component<void, Props, void> {
@@ -28,9 +29,11 @@ class SelectTask extends Component<void, Props, void> {
     return this.setState({ itemsToAdd });
   }
 
-  addEntry = (event: { target: { name: string, value: string } }) => {
-    event.preventDefault();
-    const key = event.target.value;
+  addAllowedValue = (event: { preventDefault: () => void }, data: Object) =>
+    this.props.addField({ key: data.name, value: data.value })
+
+  addEntry = (fieldKey: string) => {
+    const key = fieldKey;
     const updateEntry = {
       key,
       value: this.state.itemsToAdd[key]
@@ -43,29 +46,27 @@ class SelectTask extends Component<void, Props, void> {
 
   render() {
     return (
-      <Grid padded>
-        <Grid.Row>
-          <Dropdown
-            placeholder="Select Task Type"
-            selection
-            fluid
-            name="issuetype"
-            value={this.props.selected}
-            onChange={this.props.onChange}
-            options={this.props.tasks.map(task => Object.assign({}, { text: task.name, value: task.name, image: task.iconUrl, id: task.key }))}
-          />
-        </Grid.Row>
-        <Grid.Row />
-        <Grid.Row>
+      <Container>
+        <Dropdown
+          style={{ maxWidth: '400px', margin: 'auto' }}
+          placeholder="Select Task Type"
+          selection
+          fluid
+          name="issuetype"
+          value={this.props.selected}
+          onChange={this.props.onChange}
+          options={this.props.tasks.map(task => Object.assign({}, { text: task.name, value: task.name, image: task.iconUrl, id: task.key }))}
+        />
+        <Grid padded relaxed stackable>
           <TaskForm
             optionalFields={this.props.fetchOptions()}
             onChange={this.trackTaskForm}
+            selectValue={this.addAllowedValue}
             taskList={this.state.itemsToAdd}
             onSubmit={this.addEntry}
-          /><br />
-          <button onClick={this.props.jiraSubmit}>Create Board</button>
-        </Grid.Row>
-      </Grid>
+          />
+        </Grid>
+      </Container>
     );
   }
 }

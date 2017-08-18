@@ -44,8 +44,7 @@ class Home extends Component<void, Props, State> {
       addList: ''
     },
     showAddList: false,
-    showLoader: false,
-    sh: true
+    showLoader: false
   }
 
   componentWillMount() {
@@ -61,6 +60,10 @@ class Home extends Component<void, Props, State> {
   componentWillReceiveProps(nextProps: Object) {
     if (this.props.boards !== nextProps.boards) {
       this.setState({ boards: nextProps.boards });
+    }
+
+    if (this.props.cards !== nextProps.cards) {
+      this.setState({ showAddList: false });
     }
   }
 
@@ -104,8 +107,8 @@ class Home extends Component<void, Props, State> {
       <Grid divided="vertically">
         <Grid.Row columns={1}>
           <Grid.Column>
-            <Menu fixed="top" size="large" fluid>
-              <Menu.Item as="a" active>Sprint Hub</Menu.Item>
+            <Menu fixed="top" size="large" style={{ backgroundColor: '#1976d2' }} fluid>
+              <Menu.Item active>Sprint Hub</Menu.Item>
               <Menu.Menu position="right">
                 <Menu.Item as={Link} to="/jira">Make Jira Board</Menu.Item>
                 {!this.props.login &&
@@ -119,6 +122,7 @@ class Home extends Component<void, Props, State> {
                     onChange={this.updateBoardsState}
                     onSubmit={this.trackList}
                     errors={this.state.errors}
+                    showModal={this.state.showAddList}
                   />
                 </Menu.Item>
               </Menu.Menu>
@@ -127,7 +131,7 @@ class Home extends Component<void, Props, State> {
         </Grid.Row>
         <Loader inverted active={this.state.showLoader} />
         <Grid.Row columns={2} stretched>
-          <Grid.Column floated="left" width={6} className={styles.sidebar}>
+          <Grid.Column floated="left" width={5} className={styles.sidebar} style={{ marginTop: '.7rem', marginRight: '0px' }}>
             <BoardList
               boards={this.props.boards}
               lists={this.props.lists}
@@ -138,7 +142,7 @@ class Home extends Component<void, Props, State> {
               exportList={this.exportList}
             />
           </Grid.Column>
-          <Grid.Column width={10}>
+          <Grid.Column width={11}>
             {Object.keys(this.state.selectedStory).length !== 0 &&
               <CheckListPanel
                 checklists={this.state.selectedStory}

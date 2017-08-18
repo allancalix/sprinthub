@@ -7,30 +7,40 @@ export function getOptionsSuccess(options) {
   return { type: types.GET_OPTIONS_SUCCESS, options };
 }
 
-// export function getOptionsFailure(errors) {
-//   return { type: types.GET_OPTIONS_FAILURE, errors };
-// }
+export function getOptionsFailure(jiraLoginErrors) {
+  return { type: types.GET_OPTIONS_FAILURE, jiraLoginErrors };
+}
 
 export function getFieldsSuccess(fields) {
   return { type: types.GET_FIELDS_SUCCESS, fields };
 }
 
+export function loginPending(status) {
+  return { type: types.LOGIN_PENDING, status };
+}
+
 export function getOptions({ domain, project, username, password }) {
-  return (dispatch: (action: actionType) => void) => (
-    Jira.fetchIssueFields({ domain, project, username, password }, (error, data) => {
+  return (dispatch: (action: actionType) => void) => {
+    dispatch(loginPending(true));
+    return Jira.fetchIssueFields({ domain, project, username, password }, (error, data) => {
+      dispatch(loginPending(false));
       if (error) {
-        const errors = error.fields.map(errorField => Object.assign({}, { field: errorField, message: error.message }));
-        console.log(errors);
-      } else {
-        dispatch(getOptionsSuccess(Object.assign(
-          {},
-          data,
-          { stateSet: true },
-          { domain, project, username, password })
-        ));
+        console.log(error);
+        const jiraLoginErrors = {};
+        for (let i = 0, j = error.fields.length; i < j; i += 1) {
+          jiraLoginErrors[error.fields[i]] = error.message;
+        }
+        console.log(jiraLoginErrors);
+        return dispatch(getOptionsFailure(jiraLoginErrors));
       }
-    })
-  );
+      return dispatch(getOptionsSuccess(Object.assign(
+        {},
+        data,
+        { stateSet: true },
+        { domain, project, username, password })
+      ));
+    });
+  };
 }
 
 export function getFields({ domain, project, username, password, issuetype }, id) {

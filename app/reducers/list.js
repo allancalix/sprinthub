@@ -2,9 +2,7 @@
 import { MAP_CARDS_SUCCESS
         } from '../actions/actionTypes';
 
-export type listsStateType = {
-  +lists: Object,
-}
+export type listsStateType = Object;
 
 type actionType = {
   +type: string

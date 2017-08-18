@@ -36,10 +36,10 @@ class Db {
             .write()
             .then(() => {resolve({id: list.id, newBoard: details.newBoard})});
         } else {
-          reject('This list is already added');
+          reject({ fields: ['listName'], message: 'This list is already added' });
         }
       } else {
-        reject('List was not found on specified board');
+        reject({ fields: ['listName'], message: 'List was not found on specified board' });
       }
     });
   }
