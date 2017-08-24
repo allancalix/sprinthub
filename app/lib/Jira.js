@@ -76,51 +76,24 @@ const splitStoryPoints = name => {
   return { name: splitName, storyPoints };
 };
 
-const makeSubtask = (story, data, requestOptions, extras, form) => {
-  console.log(extras);
-  const searchLabels = {
-    qa: {
-      label: 'QA:',
-      issuetype: 'Sub-task',
-      matchingFields: ['components', 'parent']
-    },
-    ui: {
-      label: 'UI:',
-      issuetype: 'Sub-task',
-      matchingFields: ['labels', 'parent']
-    },
-    js: {
-      label: 'JS:',
-      issuetype: 'Sub-task',
-      matchingFields: []
-    },
-    ta: {
-      label: 'TA:',
-      issuetype: 'Sub-task',
-      matchingFields: []
-    },
-    unity: {
-      label: 'Unity:',
-      issuetype: 'Sub-task',
-      matchingFields: []
-    }
-  }
+const makeSubtask = (story, data, requestOptions, extras, subtaskIndex, form) => {
   let createdSubtasks = [];
   const jiraPayload = {
     issueUpdates: []
   };
   for (let label of story.labels) {
-    label = label.name.toLowerCase();
+    label = label.name.toUpperCase();
     const additionalFields = Object.assign({}, { parent: { key: data.key } }, extras);
-    if (searchLabels[label]) {
+    if (subtaskIndex[label]) {
       jiraPayload.issueUpdates = [...jiraPayload.issueUpdates,
         createJsonEntry({
-          name: `${searchLabels[label].label} ${story.name}`,
+          name: `${subtaskIndex[label].label} ${story.name}`,
           criteria: story.checklists,
-          issueType: searchLabels[label].issuetype,
+          issueType: subtaskIndex[label].issuetype,
           key: form.project,
-          additionalFields: pick(additionalFields, searchLabels[label].matchingFields)
-      })];
+          additionalFields: pick(additionalFields, subtaskIndex[label].matchingFields)
+        })
+      ];
     }
   }
   if (jiraPayload.issueUpdates.length > 0) {
@@ -187,7 +160,7 @@ exports.fetchExtendedFields = (form, id, cb) => {
 
 
 /* This method is used to generate tasks for the start of a sprint */
-exports.createTask = (boards, stories, form, extras = {}, cb) => {
+exports.createTask = (boards, stories, form, extras = {}, subtaskIndex, cb) => {
   const requestOptions = {
     url: `https://${form.domain}/rest/api/2/issue/bulk`,
     auth: {
@@ -244,6 +217,7 @@ exports.createTask = (boards, stories, form, extras = {}, cb) => {
           jiraIssueMap[filteredLabeless[i].id],
           requestOptions,
           extras,
+          subtaskIndex,
           form
         );
         createSubtask.then(value => {

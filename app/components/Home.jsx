@@ -123,6 +123,7 @@ class Home extends Component<void, Props, State> {
                     onSubmit={this.trackList}
                     errors={this.state.errors}
                     showModal={this.state.showAddList}
+                    pendingResponse={this.props.lists.addListPending || false}
                   />
                 </Menu.Item>
               </Menu.Menu>

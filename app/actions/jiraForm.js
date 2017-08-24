@@ -55,9 +55,9 @@ export function getFields({ domain, project, username, password, issuetype }, id
   );
 }
 
-export function createJiraForm(boards, lists, form, extras) {
+export function createJiraForm(boards, lists, form, extras, subtaskIndex) {
   return (dispatch: (action: actionType) => void) => (
-    Jira.createTask(boards, lists, form, extras, data => {
+    Jira.createTask(boards, lists, form, extras, subtaskIndex, data => {
       console.log(data);
     })
       // dispatch(createJiraFormSuccess());

@@ -1,6 +1,7 @@
 // @flow
 import { find, flow, remove, get } from 'lodash/fp';
 import type { boardsStateType } from '../reducers/boards';
+import { addListPending } from './list';
 import * as types from './actionTypes';
 import Sprint from '../lib/Sprint';
 
@@ -28,7 +29,9 @@ export function loadBoards() {
 
 export function addTrelloList(boardId, listName) {
   return (dispatch: (action: actionType) => void, getState) => {
+    dispatch(addListPending(true));
     return Sprint.trackNewList(boardId, listName, (error, success) => {
+      dispatch(addListPending(false));
       if (error) {
         console.log(error.valueOf());
         return false;

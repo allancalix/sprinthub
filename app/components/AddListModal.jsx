@@ -6,14 +6,15 @@ type Props = {
   onChange: () => void,
   onSubmit: () => void,
   boards: Object,
-  errors: Object
+  errors: Object,
+  pendingResponse: boolean
 };
 
 const AddListForm = ({ boards, onChange, onSubmit, errors, pendingResponse }: Props) => (
   <Modal trigger={<Button secondary>Add List</Button>} closeIcon size="mini">
     <Modal.Header content="Add A List" />
     <Modal.Content>
-      <Form onSubmit={onSubmit} loading={pendingResponse}>
+      <Form success={false} onSubmit={onSubmit} loading={pendingResponse}>
         <Form.Input
           name="boardId"
           label="Board ID"

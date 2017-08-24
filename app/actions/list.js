@@ -12,6 +12,10 @@ export function mapCardsFailure() {
   return { type: types.MAP_CARDS_FAILURE, };
 }
 
+export function addListPending(isPending) {
+  return { type: types.ADD_LIST_PENDING, isPending };
+}
+
 export function mapCards(lists: listsStateType) {
   return (dispatch: (action: actionType) => void) => {
     return Sprint.fetchCards(lists).then(data => {

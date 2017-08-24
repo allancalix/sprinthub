@@ -1,6 +1,6 @@
 // @flow
 import React, { Component } from 'react';
-import { Grid, Menu, Button } from 'semantic-ui-react';
+import { Grid, Menu, Table, Button } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import { forOwn, forEach, filter, has } from 'lodash';
 import JiraLogin from './JiraLogin';
@@ -31,7 +31,8 @@ type State = {
 
 class JiraForm extends Component<void, Props, State> {
   state = {
-    exclude: ['Description', 'Summary', 'Key', 'Issue Type', 'Affects Version/s', 'Fix Version/s', 'Linked Issues', 'Project', 'Priority', 'Attachment'],
+    // Temporary exclusion to access the variety of schema
+    exclude: ['Description', 'Summary', 'Key', 'Issue Type', 'Affects Version/s', 'Fix Version/s', 'Linked Issues', 'Project', 'Priority', 'Attachment', 'Assignee', 'Epic Link'],
     toAdd: {},
     optionsMap: {},
     matchingForm: '',
@@ -45,7 +46,8 @@ class JiraForm extends Component<void, Props, State> {
     errors: {
       username: '',
       password: ''
-    }
+    },
+    extras: {}
   }
 
   componentWillReceiveProps(nextProps: Object) {
@@ -95,18 +97,22 @@ class JiraForm extends Component<void, Props, State> {
       return false;
     }
     let pointsEntry = false;
-    forOwn(this.props.jiraForm.optionsMap[this.state.matchingForm], value => {
+    forOwn(this.props.jiraForm.optionsMap[this.state.matchingForm], (value, key) => {
       if (value.name === 'Story Points') {
         const toAddState = this.state.toAdd;
-        toAddState.customfield_10044 = 0;
+        toAddState[key] = 0;
         pointsEntry = toAddState;
       }
+    });
+    forOwn(this.state.extras, (value, key) => {
+      this.state.extras[key].matchingFields = Object.keys(this.props.jiraForm.optionsMap[value.issuetypeId]);
     });
     this.props.createJiraForm(
       this.props.boards,
       this.props.list,
       this.state.form,
-      pointsEntry || this.state.toAdd
+      pointsEntry || this.state.toAdd,
+      this.state.extras
     );
   }
 
@@ -137,6 +143,15 @@ class JiraForm extends Component<void, Props, State> {
         break;
     }
     this.setState({ toAdd });
+  }
+
+  indexSubtask = newEntry => {
+    if (!this.props.jiraForm.optionsMap[newEntry.issuetype.id]) {
+      this.props.getFields(Object.assign({}, this.state.form, { issuetype: newEntry.issuetype.value }), newEntry.issuetype.id);      
+    }
+    const extras = this.state.extras;
+    extras[newEntry.id] = { label: newEntry.title, issuetype: newEntry.issuetype.value, issuetypeId: newEntry.issuetype.id };
+    this.setState({ extras });
   }
 
   parseOptionalFields = () => {
@@ -178,11 +193,31 @@ class JiraForm extends Component<void, Props, State> {
               pendingLogin={this.props.jiraForm.showLoginLoader}
             />
             : <div>
-              <h3>Connected: {this.props.jiraForm.domain}</h3>
-              <Button primary size="small" onClick={this.createJiraBoard}>Create Board</Button>
-              <h4> User: {this.props.jiraForm.username}</h4>
-              <h4> Project: {this.props.jiraForm.project}</h4>
-              <h4> Issuetype: {this.state.form.issuetype}</h4>
+              <Table basic celled collapsing padded size="large" style={{ fontSize: '2em' }}>
+                <Table.Header>
+                  <Table.HeaderCell>Field</Table.HeaderCell>
+                  <Table.HeaderCell>Value</Table.HeaderCell>
+                </Table.Header>
+                <Table.Body>
+                  <Table.Row>
+                    <Table.Cell>Connected</Table.Cell>
+                    <Table.Cell>{this.props.jiraForm.domain}</Table.Cell>
+                  </Table.Row>
+                  <Table.Row>
+                    <Table.Cell>User</Table.Cell>
+                    <Table.Cell>{this.props.jiraForm.username}</Table.Cell>
+                  </Table.Row>
+                  <Table.Row>
+                    <Table.Cell>Project</Table.Cell>
+                    <Table.Cell>{this.props.jiraForm.project}</Table.Cell>
+                  </Table.Row>
+                  <Table.Row>
+                    <Table.Cell>Issuetype</Table.Cell>
+                    <Table.Cell>{this.state.form.issuetype}</Table.Cell>
+                  </Table.Row>
+                </Table.Body>
+              </Table>
+              <Button fluid primary size="small" onClick={this.createJiraBoard}>Create Board</Button>
             </div>
           }
         </Grid.Row>
@@ -191,10 +226,13 @@ class JiraForm extends Component<void, Props, State> {
             <SelectTask
               onChange={this.selectIssueType}
               tasks={this.props.jiraForm.tasks}
+              subtasks={this.props.jiraForm.subtasks}
               selected={this.state.form.issuetype}
               jiraSubmit={this.createJiraBoard}
               fetchOptions={this.parseOptionalFields}
               addField={this.pushNewField}
+              pushSubtask={this.indexSubtask}
+              trackedSubtasks={this.state.extras} 
             />
           }
         </Grid.Row>
