@@ -1,5 +1,5 @@
 const request = require('request');
-const { pick } = require('lodash');
+const { pick, omit } = require('lodash');
 
 const createJsonEntry = story => {
   const entry = {
@@ -54,6 +54,7 @@ const createTasksRequest = (payload, overwriteDefault = {}) => {
     method: 'POST',
     body: JSON.stringify(payload)
   };
+  console.log(payload);
   options = Object.assign(options, overwriteDefault);
   return new Promise((resolve, reject) => {
     request(options, (error, res, body) => {
@@ -189,15 +190,15 @@ exports.createTask = (boards, stories, form, extras = {}, subtaskIndex, cb) => {
       const name = (story.name.search(/\(([^)]+)\) /) === 0)
         ? splitStoryPoints(story.name) : { name: story.name, storyPoints: 0 };
       let storyPoints = {};
-      if (extras.hasOwnProperty('customfield_10044')) {
-        storyPoints = { customfield_10044: parseInt(name.storyPoints) };
+      if (extras.hasOwnProperty('storyPoints')) {
+        storyPoints[extras.storyPoints] = parseInt(name.storyPoints);
       }
       return createJsonEntry({
         name: name.name,
         criteria: story.checklists,
         issueType: form.issuetype,
         key: form.project,
-        additionalFields: Object.assign({}, extras, storyPoints)
+        additionalFields: Object.assign({}, omit(extras, ['storyPoints']), storyPoints)
       });
     });
 
