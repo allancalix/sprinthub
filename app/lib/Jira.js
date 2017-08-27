@@ -230,3 +230,15 @@ exports.createTask = (boards, stories, form, extras = {}, subtaskIndex, cb) => {
     }
   });
 };
+
+exports.getUsers = (form, searchQuery) => {
+  const overwriteDefault = {
+    url: searchQuery,
+    method: 'GET',
+    auth: {
+      user: form.username,
+      pass: form.password,
+      sendImmediately: true
+    }
+  };
+};

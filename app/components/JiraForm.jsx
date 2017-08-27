@@ -1,6 +1,6 @@
 // @flow
 import React, { Component } from 'react';
-import { Grid, Menu, Table, Button } from 'semantic-ui-react';
+import { Grid, Menu, Table, Button, Icon } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import { forOwn, forEach, filter, has } from 'lodash';
 import JiraLogin from './JiraLogin';
@@ -32,8 +32,9 @@ type State = {
 class JiraForm extends Component<void, Props, State> {
   state = {
     // Temporary exclusion to access the variety of schema
-    exclude: ['Description', 'Summary', 'Key', 'Issue Type', 'Affects Version/s', 'Fix Version/s', 'Linked Issues', 'Project', 'Priority', 'Attachment', 'Assignee', 'Epic Link'],
+    exclude: ['Description', 'Summary', 'Key', 'Issue Type', 'Sprint', 'Affects Version/s', 'Fix Version/s', 'Linked Issues', 'Project', 'Priority', 'Attachment', 'Epic Link'],
     toAdd: {},
+    addedEntryList: [],
     optionsMap: {},
     matchingForm: '',
     form: {
@@ -140,6 +141,14 @@ class JiraForm extends Component<void, Props, State> {
         appendEntry = (toAdd.hasOwnProperty(entry.key))
           ? [...this.state.toAdd[entry.key], entry.value] : [entry.value];
         toAdd[entry.key] = appendEntry;
+        this.setState({ addedEntryList: [
+          ...this.state.addedEntryList,
+          {
+            key: entry.key,
+            name: this.props.jiraForm.optionsMap[this.state.matchingForm][entry.key].name,
+            value: entry.value
+          }
+        ] });
         break;
     }
     this.setState({ toAdd });
@@ -178,7 +187,7 @@ class JiraForm extends Component<void, Props, State> {
       <Grid padded>
         <Grid.Row columns={1}>
           <Menu fixed="top" size="large" fluid>
-            <Menu.Item as={Link} to="/">Sprint Hub</Menu.Item>
+            <Menu.Item as={Link} to="/"><Icon name="arrow left" />SprintHub</Menu.Item>
             <Menu.Menu position="right" />
           </Menu>
         </Grid.Row>
@@ -195,8 +204,10 @@ class JiraForm extends Component<void, Props, State> {
             : <div>
               <Table basic celled collapsing padded size="large" style={{ fontSize: '2em' }}>
                 <Table.Header>
-                  <Table.HeaderCell>Field</Table.HeaderCell>
-                  <Table.HeaderCell>Value</Table.HeaderCell>
+                  <Table.Row>
+                    <Table.HeaderCell>Field</Table.HeaderCell>
+                    <Table.HeaderCell>Value</Table.HeaderCell>
+                  </Table.Row>
                 </Table.Header>
                 <Table.Body>
                   <Table.Row>
@@ -221,7 +232,34 @@ class JiraForm extends Component<void, Props, State> {
             </div>
           }
         </Grid.Row>
-        <Grid.Row>
+        <Grid.Row centered columns={1}>
+          <Grid.Column>
+            {(this.state.addedEntryList.length > 0) &&
+            <Table
+              basic
+              celled
+              style={{
+                fontSize: '1.6em',
+                marginBottom: '25px'
+              }}
+            >
+              <Table.Header>
+                <Table.Row>
+                  <Table.HeaderCell>Field</Table.HeaderCell>
+                  <Table.HeaderCell>Value</Table.HeaderCell>
+                </Table.Row>
+              </Table.Header>
+              <Table.Body>
+                {this.state.addedEntryList.map(entry => (
+                  (typeof (entry.value[0]) === 'string') && <Table.Row key={`${entry.key}+${entry.value}`}>
+                    <Table.Cell>{entry.name}</Table.Cell>
+                    <Table.Cell>{String(entry.value)}</Table.Cell>
+                  </Table.Row>
+                ))}
+              </Table.Body>
+            </Table>
+            }
+          </Grid.Column>
           {this.props.jiraForm.stateSet &&
             <SelectTask
               onChange={this.selectIssueType}
@@ -232,7 +270,7 @@ class JiraForm extends Component<void, Props, State> {
               fetchOptions={this.parseOptionalFields}
               addField={this.pushNewField}
               pushSubtask={this.indexSubtask}
-              trackedSubtasks={this.state.extras} 
+              trackedSubtasks={this.state.extras}
             />
           }
         </Grid.Row>

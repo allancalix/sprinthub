@@ -34,49 +34,52 @@ const SubtaskForm = ({ subtaskList, onChange, pendingSubtask, selectSubtaskType,
         </Table.Row>
       ))}
     </Table.Body>
-    <Table.Row>
-      <Table.Cell>
-        <Input
-          type="text"
-          label="New Label ID"
-          name="id"
-          value={pendingSubtask.id || ''}
-          placeholder="Example: QA"
-          onChange={onChange}
-        />
-      </Table.Cell>
-      <Table.Cell>
-        <Dropdown
-          placeholder="Select Subtask Type"
-          selection
-          fluid
-          onChange={selectSubtaskType}
-          value={pendingSubtask.issuetype.value}
-          name="issuetype"
-          options={subtaskList.map(task => Object.assign({},
-            {
-              text: task.name,
-              value: task.name,
-              image: task.iconUrl,
-              id: task.id
-            }
-          ))}
-        />
-      </Table.Cell>
-      <Table.Cell>
-        <Input
-          type="text"
-          label="Title"
-          name="title"
-          value={pendingSubtask.title || ''}
-          placeholder="QA:"
-          onChange={onChange}
-        />
-      </Table.Cell>
-    </Table.Row>
+
     <Table.Footer fullWidth>
+      <Table.Row>
+        <Table.Cell>
+          <Input
+            type="text"
+            label="New Label ID"
+            name="id"
+            value={pendingSubtask.id || ''}
+            placeholder="Example: QA"
+            onChange={onChange}
+            fluid
+          />
+        </Table.Cell>
+        <Table.Cell>
+          <Dropdown
+            placeholder="Select Subtask Type"
+            selection
+            fluid
+            onChange={selectSubtaskType}
+            value={pendingSubtask.issuetype.value}
+            name="issuetype"
+            options={subtaskList.map(task => Object.assign({},
+              {
+                text: task.name,
+                value: task.name,
+                image: task.iconUrl,
+                id: task.id
+              }
+            ))}
+          />
+        </Table.Cell>
+        <Table.Cell>
+          <Input
+            type="text"
+            label="Title"
+            name="title"
+            value={pendingSubtask.title || ''}
+            placeholder="QA:"
+            onChange={onChange}
+            fluid
+          />
+        </Table.Cell>
+      </Table.Row>
       <Table.Row colSpan="3">
-        <Button onClick={addSubtask} size="small">Add Discipline</Button>
+        <Button onClick={addSubtask} size="large">Add Discipline</Button>
       </Table.Row>
     </Table.Footer>
   </Table>

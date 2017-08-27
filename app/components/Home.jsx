@@ -59,11 +59,14 @@ class Home extends Component<void, Props, State> {
 
   componentWillReceiveProps(nextProps: Object) {
     if (this.props.boards !== nextProps.boards) {
-      this.setState({ boards: nextProps.boards });
-    }
-
-    if (this.props.cards !== nextProps.cards) {
-      this.setState({ showAddList: false });
+      this.setState({
+        boards: nextProps.boards,
+        showAddList: false,
+        board: {
+          boardId: '',
+          listName: ''
+        }
+      });
     }
   }
 
@@ -122,7 +125,6 @@ class Home extends Component<void, Props, State> {
                     onChange={this.updateBoardsState}
                     onSubmit={this.trackList}
                     errors={this.state.errors}
-                    showModal={this.state.showAddList}
                     pendingResponse={this.props.lists.addListPending || false}
                   />
                 </Menu.Item>

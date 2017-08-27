@@ -31,6 +31,7 @@ const TaskForm = ({ optionalFields, taskList, onChange, onSubmit, selectValue }:
           placeholder={field.name}
           fluid
           value={taskList[field.key] || ''}
+          style={{ fontSize: '1.6em' }}
           onChange={onChange}
         />
       </Grid.Column>
@@ -41,9 +42,10 @@ const TaskForm = ({ optionalFields, taskList, onChange, onSubmit, selectValue }:
           search
           selection
           placeholder={field.name}
+          style={{ fontSize: '1.6em' }}
           name={field.key}
           onChange={selectValue}
-          options={mapOptions(field.allowedValues)}
+          options={mapOptions(field.allowedValues || [])}
         />
       </Grid.Column>
     )}
