@@ -101,7 +101,7 @@ class JiraForm extends Component<void, Props, State> {
     forOwn(this.props.jiraForm.optionsMap[this.state.matchingForm], (value, key) => {
       if (value.name === 'Story Points') {
         const toAddState = this.state.toAdd;
-        toAddState[key] = 0;
+        toAddState.storyPoints = key;
         pointsEntry = toAddState;
       }
     });
