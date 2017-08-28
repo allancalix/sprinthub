@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { forOwn, forEach, filter, has } from 'lodash';
 import JiraLogin from './JiraLogin';
 import SelectTask from './SelectTask';
+import { getUsers } from '../lib/Jira';
 
 type Props = {
   getOptions: () => void,
@@ -37,6 +38,7 @@ class JiraForm extends Component<void, Props, State> {
     addedEntryList: [],
     optionsMap: {},
     matchingForm: '',
+    usernameSearch: [],
     form: {
       domain: this.props.jiraForm.domain,
       project: this.props.jiraForm.project,
@@ -90,6 +92,12 @@ class JiraForm extends Component<void, Props, State> {
     }
     return this.setState({ form, matchingForm: task[0].id }, () =>
       this.props.getFields(this.state.form, task[0].id));
+  }
+
+  getUsernames = (event: { preventDefault: () => void }, data) => {
+    const userList = getUsers(this.state.form, this.props.jiraForm.optionsMap[this.state.matchingForm].assignee.autoCompleteUrl+data, list =>
+      this.setState({ usernameSearch: list })
+    );
   }
 
   createJiraBoard = (event: {preventDefault: () => void}) => {
@@ -159,7 +167,12 @@ class JiraForm extends Component<void, Props, State> {
       this.props.getFields(Object.assign({}, this.state.form, { issuetype: newEntry.issuetype.value }), newEntry.issuetype.id);      
     }
     const extras = this.state.extras;
-    extras[newEntry.id] = { label: newEntry.title, issuetype: newEntry.issuetype.value, issuetypeId: newEntry.issuetype.id };
+    extras[newEntry.id] = {
+      label: newEntry.title,
+      issuetype: newEntry.issuetype.value,
+      issuetypeId: newEntry.issuetype.id,
+      assignee: newEntry.assignee.value
+    };
     this.setState({ extras });
   }
 
@@ -271,6 +284,8 @@ class JiraForm extends Component<void, Props, State> {
               addField={this.pushNewField}
               pushSubtask={this.indexSubtask}
               trackedSubtasks={this.state.extras}
+              getUsernames={this.getUsernames}
+              availableUsernames={this.state.usernameSearch}
             />
           }
         </Grid.Row>

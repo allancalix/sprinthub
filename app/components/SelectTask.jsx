@@ -101,9 +101,11 @@ class SelectTask extends Component<void, Props, void> {
                 subtaskList={this.props.subtasks}
                 onChange={this.trackSubtaskForm}
                 selectSubtaskType={this.selectSubtaskType}
+                getUsernames={this.props.getUsernames}
                 pendingSubtask={this.state.subtaskToAdd}
                 addSubtask={this.addSubtask}
                 trackedSubtasks={this.props.trackedSubtasks}
+                usernameList={this.props.availableUsernames}
               />
             </Grid.Row>
           }

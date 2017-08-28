@@ -110,7 +110,7 @@ class Home extends Component<void, Props, State> {
       <Grid divided="vertically">
         <Grid.Row columns={1}>
           <Grid.Column>
-            <Menu fixed="top" size="large" style={{ backgroundColor: '#1976d2' }} fluid>
+            <Menu fixed="top" size="large" style={{ backgroundColor: 'white' }} fluid>
               <Menu.Item active>Sprint Hub</Menu.Item>
               <Menu.Menu position="right">
                 <Menu.Item as={Link} to="/jira">Make Jira Board</Menu.Item>
