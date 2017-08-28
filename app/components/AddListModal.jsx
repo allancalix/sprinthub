@@ -1,6 +1,6 @@
 // @flow
 import React from 'react';
-import { Form, Modal, Button, Message } from 'semantic-ui-react';
+import { Form, Modal, Button } from 'semantic-ui-react';
 
 type Props = {
   onChange: () => void,
@@ -14,7 +14,7 @@ const AddListForm = ({ boards, onChange, onSubmit, errors, pendingResponse }: Pr
   <Modal trigger={<Button secondary>Add List</Button>} closeIcon size="mini">
     <Modal.Header content="Add A List" />
     <Modal.Content>
-      <Form success={pendingResponse} error={!pendingResponse} onSubmit={onSubmit} loading={pendingResponse}>
+      <Form onSubmit={onSubmit} loading={pendingResponse}>
         <Form.Input
           name="boardId"
           label="Board ID"
@@ -28,15 +28,6 @@ const AddListForm = ({ boards, onChange, onSubmit, errors, pendingResponse }: Pr
           placeholder="EX: Sprint 3"
           value={boards.listName}
           onChange={onChange}
-        />
-        <Message
-          success
-          header="List Added"
-        />
-        <Message
-          error
-          header="Oops!"
-          content="There was a problem adding this list"
         />
         <Button primary fluid size="small">Add</Button>
       </Form>
