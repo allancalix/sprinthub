@@ -142,7 +142,7 @@ exports.fetchIssueFields = (form, cb) => {
 
 exports.fetchExtendedFields = (form, id, cb) => {
   const overwriteDefault = {
-    url: `https://${form.domain}/rest/api/2/issue/createmeta?projectKeys=${form.project}&issueTypeIds=${id}&expand=projects.issuetypes.fields`,
+    url: `https://${form.domain}/rest/api/2/issue/createmeta?projectKeys=${form.project}&issuetypeIds=${id}&expand=projects.issuetypes.fields`,
     method: 'GET',
     auth: {
       user: form.username,
