@@ -33,7 +33,7 @@ type State = {
 class JiraForm extends Component<void, Props, State> {
   state = {
     // Temporary exclusion to access the variety of schema
-    exclude: ['Description', 'Summary', 'Key', 'Issue Type', 'Sprint', 'Affects Version/s', 'Fix Version/s', 'Linked Issues', 'Project', 'Priority', 'Attachment', 'Epic Link'],
+    include: ['Component/s', 'Labels', 'Sprint'],
     toAdd: {},
     addedEntryList: [],
     optionsMap: {},
@@ -95,7 +95,9 @@ class JiraForm extends Component<void, Props, State> {
   }
 
   getUsernames = (event: { preventDefault: () => void }, data) => {
-    const userList = getUsers(this.state.form, this.props.jiraForm.optionsMap[this.state.matchingForm].assignee.autoCompleteUrl+data, list =>
+    // Hacky regex required to make this jira search compatible with old API versions
+    const assignee = this.props.jiraForm.optionsMap[this.state.matchingForm].assignee;
+    const userList = getUsers(this.state.form, `${assignee.autoCompleteUrl.split('?')[0].replace(/search/, 'multiProjectSearch')}?username=${data}&projectKeys=${this.state.form.project}`, list =>
       this.setState({ usernameSearch: list })
     );
   }
@@ -182,13 +184,13 @@ class JiraForm extends Component<void, Props, State> {
       Object.assign(value, { key })
     );
     optionalFields = filter(optionalFields, field => {
-      let isExcluded = false;
-      for (let i = 0, j = this.state.exclude.length; i < j; i += 1) {
-        if (this.state.exclude[i] === field.name) {
-          isExcluded = true;
+      let isIncluded = false;
+      for (let i = 0, j = this.state.include.length; i < j; i += 1) {
+        if (this.state.include[i] === field.name) {
+          isIncluded = true;
         }
       }
-      if (!isExcluded) {
+      if (isIncluded) {
         return field;
       }
     });

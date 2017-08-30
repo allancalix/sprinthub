@@ -76,7 +76,7 @@ class SelectTask extends Component<void, Props, void> {
 
   render() {
     return (
-      <Container>
+      <Container style={{ minHeight: 300 }}>
         <Dropdown
           style={{ maxWidth: '400px', margin: 'auto', fontSize: '1.8em' }}
           placeholder="Select Task Type"
