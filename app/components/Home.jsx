@@ -59,11 +59,14 @@ class Home extends Component<void, Props, State> {
 
   componentWillReceiveProps(nextProps: Object) {
     if (this.props.boards !== nextProps.boards) {
-      this.setState({ boards: nextProps.boards });
-    }
-
-    if (this.props.cards !== nextProps.cards) {
-      this.setState({ showAddList: false });
+      this.setState({
+        boards: nextProps.boards,
+        showAddList: false,
+        board: {
+          boardId: '',
+          listName: ''
+        }
+      });
     }
   }
 
@@ -107,7 +110,7 @@ class Home extends Component<void, Props, State> {
       <Grid divided="vertically">
         <Grid.Row columns={1}>
           <Grid.Column>
-            <Menu fixed="top" size="large" style={{ backgroundColor: '#1976d2' }} fluid>
+            <Menu fixed="top" size="large" style={{ backgroundColor: 'white' }} fluid>
               <Menu.Item active>Sprint Hub</Menu.Item>
               <Menu.Menu position="right">
                 <Menu.Item as={Link} to="/jira">Make Jira Board</Menu.Item>
@@ -122,7 +125,6 @@ class Home extends Component<void, Props, State> {
                     onChange={this.updateBoardsState}
                     onSubmit={this.trackList}
                     errors={this.state.errors}
-                    showModal={this.state.showAddList}
                     pendingResponse={this.props.lists.addListPending || false}
                   />
                 </Menu.Item>

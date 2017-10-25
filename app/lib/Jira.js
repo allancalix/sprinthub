@@ -54,7 +54,6 @@ const createTasksRequest = (payload, overwriteDefault = {}) => {
     method: 'POST',
     body: JSON.stringify(payload)
   };
-  console.log(payload);
   options = Object.assign(options, overwriteDefault);
   return new Promise((resolve, reject) => {
     request(options, (error, res, body) => {
@@ -78,7 +77,6 @@ const splitStoryPoints = name => {
 };
 
 const makeSubtask = (story, data, requestOptions, extras, subtaskIndex, form) => {
-  let createdSubtasks = [];
   const jiraPayload = {
     issueUpdates: []
   };
@@ -86,14 +84,21 @@ const makeSubtask = (story, data, requestOptions, extras, subtaskIndex, form) =>
     label = label.name.toUpperCase();
     const additionalFields = Object.assign({}, { parent: { key: data.key } }, extras);
     if (subtaskIndex[label]) {
+      let subtaskParams = {
+        name: `${subtaskIndex[label].label} ${story.name}`,
+        criteria: story.checklists,
+        issueType: subtaskIndex[label].issuetype,
+        key: form.project,
+        additionalFields: pick(additionalFields, subtaskIndex[label].matchingFields)
+      };
+      if (subtaskIndex[label].assignee) {
+        subtaskParams.additionalFields = {
+          ...subtaskParams.additionalFields,
+          assignee: subtaskIndex[label].assignee
+        };
+      }
       jiraPayload.issueUpdates = [...jiraPayload.issueUpdates,
-        createJsonEntry({
-          name: `${subtaskIndex[label].label} ${story.name}`,
-          criteria: story.checklists,
-          issueType: subtaskIndex[label].issuetype,
-          key: form.project,
-          additionalFields: pick(additionalFields, subtaskIndex[label].matchingFields)
-        })
+        createJsonEntry(subtaskParams)
       ];
     }
   }
@@ -230,4 +235,19 @@ exports.createTask = (boards, stories, form, extras = {}, subtaskIndex, cb) => {
       }
     }
   });
+};
+
+exports.getUsers = (form, searchQuery, cb) => {
+  const overwriteDefault = {
+    url: searchQuery,
+    method: 'GET',
+    auth: {
+      user: form.username,
+      pass: form.password,
+      sendImmediately: true
+    }
+  };
+
+  const promise = createTasksRequest(null, overwriteDefault);
+  promise.then(list => cb(list));
 };

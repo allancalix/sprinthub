@@ -15,7 +15,8 @@ type Props = {
   onChange: () => void,
   jiraSubmit: () => void,
   fetchOptions: () => void,
-  addField: () => void
+  addField: () => void,
+  selected: string
 };
 
 class SelectTask extends Component<void, Props, void> {
@@ -42,7 +43,6 @@ class SelectTask extends Component<void, Props, void> {
   }
 
   selectSubtaskType = (event: { preventDefault: () => void }, data) => {
-    console.log(data);
     const field = data.name;
     const subtaskToAdd = this.state.subtaskToAdd;
     for (let i = 0, j = data.options.length; i < j; i += 1) {
@@ -78,7 +78,7 @@ class SelectTask extends Component<void, Props, void> {
     return (
       <Container>
         <Dropdown
-          style={{ maxWidth: '400px', margin: 'auto' }}
+          style={{ maxWidth: '400px', margin: 'auto', fontSize: '1.8em' }}
           placeholder="Select Task Type"
           selection
           fluid
@@ -95,16 +95,20 @@ class SelectTask extends Component<void, Props, void> {
             taskList={this.state.itemsToAdd}
             onSubmit={this.addEntry}
           />
-          <Grid.Row>
-            <SubtaskForm
-              subtaskList={this.props.subtasks}
-              onChange={this.trackSubtaskForm}
-              selectSubtaskType={this.selectSubtaskType}
-              pendingSubtask={this.state.subtaskToAdd}
-              addSubtask={this.addSubtask}
-              trackedSubtasks={this.props.trackedSubtasks}
-            />
-          </Grid.Row>
+          { this.props.selected &&
+            <Grid.Row>
+              <SubtaskForm
+                subtaskList={this.props.subtasks}
+                onChange={this.trackSubtaskForm}
+                selectSubtaskType={this.selectSubtaskType}
+                getUsernames={this.props.getUsernames}
+                pendingSubtask={this.state.subtaskToAdd}
+                addSubtask={this.addSubtask}
+                trackedSubtasks={this.props.trackedSubtasks}
+                usernameList={this.props.availableUsernames}
+              />
+            </Grid.Row>
+          }
         </Grid>
       </Container>
     );
