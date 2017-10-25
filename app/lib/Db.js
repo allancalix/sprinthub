@@ -16,7 +16,7 @@ class Db {
     return db.get('boards').some({ boardId: id }).value();
   }
 
-  saveSelectedList(trelloData, details) {    
+  saveSelectedList(trelloData, details) {
     return new Promise(function(resolve, reject) {
       const list = _.find(trelloData, {name: details.name});
       if (list) {
@@ -31,7 +31,7 @@ class Db {
           db
             .get('boards')
             .find({boardId: details.boardId})
-            .get('trelloLists') 
+            .get('trelloLists')
             .push({name: list.name, trelloId: list.id})
             .write()
             .then(() => {resolve({id: list.id, newBoard: details.newBoard})});
@@ -44,25 +44,32 @@ class Db {
     });
   }
 
-  removeTrelloList(boardId, id) {
+  /*
+   *
+   * Method used to remove a list from the database file.
+   * @boardId: id of board to remove, @id: id of list to remove
+   * Notes: Could be done using only list id since they are unique everywhere.
+   *
+   */
+  async removeTrelloList(boardId, id) {
+    const result = {};
+    try {
+      await db.get('boards').find({boardId: boardId}).get('trelloLists').remove({ trelloId: id }).write();
+      // If this list is the last in a board, remove the board
+      if(_.isEmpty(db.get('boards').find({boardId: boardId}).get('trelloLists').value())) {
+        await db.get('boards').remove({boardId: boardId}).write()
+        // Maybe a dumb way to signal that boards should be updated
+        result.message = 'removedEmptyBoard';
+      }
+      result.success = 0;
+    } catch (err) {
+      error = -1;
+    }
     return new Promise((resolve, reject) => {
-      db
-      .get('boards')
-      .find({boardId: boardId})
-      .get('trelloLists')
-      .remove({ trelloId: id })
-      .write()
-      .then(() =>{
-        if(_.isEmpty(db.get('boards').find({boardId: boardId}).get('trelloLists').value())) {
-          db
-          .get('boards')
-          .remove({boardId: boardId})
-          .write()
-          .then(() => resolve('removedEmptyBoard'));
-        } else {
-          return resolve('Success');
-        }
-      }).catch(() => reject('Problem deleting list'));
+      if (result.success < 0) {
+        reject(result.message);
+      }
+      resolve(result.message);
     });
   }
 
@@ -94,3 +101,4 @@ class Db {
 }
 
 module.exports = new Db();
+
